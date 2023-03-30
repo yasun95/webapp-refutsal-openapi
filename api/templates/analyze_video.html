@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Analyzing Video....</title>
+    <style>
+      .loading-bar {
+        width: 0%;
+        height: 20px;
+        transition: width 0.2s ease-in-out, background-color 1s;
+        background-color: rgb(128, 0, 0);
+        margin-bottom: 10px;
+      }
+      .percent {
+        margin-top: 10px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Analyzing Video....</h1>
+    <div>
+      <h2>Detect Goal</h2>
+      <div class="loading-bar" id="loading-bar-goal"></div>
+      <div class="percent" id="percent-goal">0%</div>
+    </div>
+    <div>
+      <h2>Detect Player</h2>
+      <div class="loading-bar" id="loading-bar-player"></div>
+      <div class="percent" id="percent-player">0%</div>
+    </div>
+    <div>
+      <h2>Make Heatmap</h2>
+      <div class="loading-bar" id="loading-bar-heatmap"></div>
+      <div class="percent" id="percent-heatmap">0%</div>
+    </div>
+    <script>
+      function updateProgressBar(element, percent) {
+        var loadingBar = element.querySelector(".loading-bar");
+        var percentElem = element.querySelector(".percent");
+        loadingBar.style.width = percent + "%";
+        percentElem.textContent = percent + "%";
+        if (percent < 20) {
+          loadingBar.style.backgroundColor =
+            "rgb(255," + Math.round(255 * (percent / 80)) + ",0)";
+        } else if (percent < 40) {
+          loadingBar.style.backgroundColor =
+            "rgb(255," + Math.round(255 * (percent / 60)) + ",0)";
+        } else if (percent < 60) {
+          loadingBar.style.backgroundColor =
+            "rgb(255," + Math.round(255 * (percent / 40)) + ",0)";
+        } else if (percent < 80) {
+          loadingBar.style.backgroundColor =
+            "rgb(255," + Math.round(255 * (percent / 20)) + ",0)";
+        } else {
+          loadingBar.style.backgroundColor = "rgb(0,255,0)";
+        }
+      }
+
+      function updateProgress(route, element) {
+        var url = "/analyze/" + route + "?UUID={{ name }}";
+        var eventSource = new EventSource(url);
+        eventSource.onmessage = function (event) {
+          var progress = JSON.parse(event.data).percent;
+          updateProgressBar(element, progress);
+          if (progress >= 100) {
+            eventSource.close();
+            if (
+              document.querySelector("#loading-bar-goal").style.width ===
+                "100%" &&
+              document.querySelector("#loading-bar-player").style.width ===
+                "100%" &&
+              document.querySelector("#loading-bar-heatmap").style.width ===
+                "100%"
+            ) {
+              window.location.href = "/result";
+            }
+          }
+        };
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        updateProgress(
+          "detect/goal",
+          document.querySelector("#loading-bar-goal").parentNode
+        );
+        updateProgress(
+          "detect/player",
+          document.querySelector("#loading-bar-player").parentNode
+        );
+        updateProgress(
+          "make/heatmap",
+          document.querySelector("#loading-bar-heatmap").parentNode
+        );
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Open_Api_v1</title>
+    <style>
+      body {
+        background-image: url("static/background/soccer2.jpeg");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+      .color-input {
+        display: inline-block;
+        width: 45%;
+      }
+      .center {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="center">
+      <h1>Fill out this form.</h1>
+      <form action="/download" method="post">
+        <p>
+          camera number :
+          <select name="camnum1">
+            <option value="01_">1</option>
+            <option value="02_">2</option>
+            <option value="03_">3</option>
+            <option value="04_">4</option>
+          </select>
+        </p>
+        <p>
+          vest color :
+          <select name="vest_color1">
+            <option value="RED">RED</option>
+            <option value="BLUE">BLUE</option>
+            <option value="GREEN">GREEN</option>
+            <option value="YELLOW">YELLOW</option>
+          </select>
+          <select name="vest_color2">
+            <option value="RED">RED</option>
+            <option value="BLUE">BLUE</option>
+            <option value="GREEN">GREEN</option>
+            <option value="YELLOW">YELLOW</option>
+          </select>
+        </p>
+        <p>youtube URL : <input type="text" name="video_url" /></p>
+        <p>
+          Insert to the match information and click the submit button.
+          <input type="submit" value="submit" onclick="return validateForm()" />
+        </p>
+      </form>
+    </div>
+    <script>
+      function validateForm() {
+        var camNumber = document.forms[0]["camnum"].value;
+        var vestColor1 = document.forms[0]["vest_color1"].value;
+        var vestColor2 = document.forms[0]["vest_color2"].value;
+        var videoUrl = document.forms[0]["video_url"].value;
+
+        var urlRegex =
+          /^https?:\/\/(?:www\.)?youtube\.com\/watch\?(?=.*v=\w+)(?:\S+)?$/;
+        if (!urlRegex.test(videoUrl)) {
+          alert("Please enter a valid YouTube URL.");
+          return false;
+        }
+
+        if (
+          camNumber == "" ||
+          vestColor1 == "" ||
+          vestColor2 == "" ||
+          videoUrl == ""
+        ) {
+          alert("Please fill out all fields.");
+          return false;
+        }
+        return true;
+      }
+    </script>
+  </body>
+</html>

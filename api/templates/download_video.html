@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Downloading Video....</title>
+    <style>
+      #loading-bar {
+        width: 0%;
+        height: 20px;
+        transition: width 0.2s ease-in-out, background-color 1s;
+        background-color: rgb(128, 0, 0);
+      }
+      #percent {
+        margin-top: 10px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Downloading Video....</h1>
+    <div id="loading-bar"></div>
+    <div id="percent"></div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        var loadingBar = $("#loading-bar");
+        var percentElem = $("#percent");
+
+        loadingBar.css("width", "0%");
+        percentElem.text("0%");
+
+        var source = new EventSource("/load?uuid={{ name }}");
+        source.onmessage = function (event) {
+          var data = JSON.parse(event.data);
+          var percent = data.percent;
+          var intPercent = parseInt(percent);
+          loadingBar.css("width", intPercent + "%");
+          percentElem.text(intPercent + "%");
+          if (percent < 20) {
+            loadingBar.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 80)) + ",0)"
+            );
+          } else if (percent < 40) {
+            loadingBar.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 60)) + ",0)"
+            );
+          } else if (percent < 60) {
+            loadingBar.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 40)) + ",0)"
+            );
+          } else if (percent < 80) {
+            loadingBar.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 20)) + ",0)"
+            );
+          } else {
+            loadingBar.css("background-color", "rgb(0,255,0)");
+          }
+          if (percent == 100) {
+            source.close();
+            percentElem.text("100%");
+            loadingBar.css("width", "100%");
+            setTimeout(function () {
+              window.location.href =
+                "/analyze?uuid=" + encodeURIComponent("{{ name }}");
+            }, 1000);
+          }
+        };
+      });
+    </script>
+  </body>
+</html>

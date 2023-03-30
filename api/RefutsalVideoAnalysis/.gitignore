@@ -1,0 +1,16 @@
+/input/video/*.avi
+/input/goaldetect/*.avi
+
+*.zip
+*.avi
+
+!/input/refutsal_v1/TTA_goal_detection_test
+!/input/TTA_test_mix/*
+
+
+#/input/TTA_origin_video/*.avi
+
+#/input/refutsal_v1/goal_clips/*
+#/input/test_service/*.avi
+
+#/input/refutsal_v1/time_test_video/*

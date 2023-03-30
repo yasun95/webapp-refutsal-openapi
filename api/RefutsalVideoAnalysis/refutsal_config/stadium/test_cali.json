@@ -1,0 +1,156 @@
+{   
+    "uuid":"0x1test1x0",
+    "name": "byolnae1",
+    "width":32,
+    "height":15.2,
+    "cam1":{
+        "frame_size":{"width":"Null", "height":"Null"},
+        "calibration_points":[],
+        "goal_points":[],
+        "add_score": "Null",
+        "ball_ignore_point": []
+    },
+    "cam2":{
+        "frame_size":{"width":2560, "height":1440},
+        "calibration_points": [
+            {"frame_x": 237, "frame_y": 330, "real_x":-16, "real_y":7.6},
+            {"frame_x": 185, "frame_y": 375, "real_x":-16, "real_y":6.4},
+            {"frame_x": 517, "frame_y": 383, "real_x":0, "real_y":2.6},
+            {"frame_x": 94, "frame_y": 573, "real_x":-7, "real_y":0},
+            {"frame_x": 338, "frame_y": 535, "real_x":0, "real_y":0},
+            {"frame_x": 155, "frame_y": 716, "real_x":0, "real_y":-2.6},
+            {"frame_x": 825, "frame_y": 148, "real_x":0, "real_y":7.6},
+            {"frame_x": 1369, "frame_y": 477, "real_x":0, "real_y":10.3},
+            {"frame_x": 2299, "frame_y": 41, "real_x":16, "real_y":6.4},
+            {"frame_x": 2303, "frame_y": 307, "real_x":16, "real_y":1.5},
+            {"frame_x": 2304, "frame_y": 631, "real_x":16, "real_y":-1.5}
+        ],
+        "goal_points": [
+            {"x": 2290, "y": 622},
+            {"x": 2380, "y": 630},
+            {"x": 2355, "y": 302},
+            {"x": 2307, "y": 5},
+            {"x": 2197, "y": 2},
+            {"x": 2257, "y": 167}
+        ],
+        "add_score": "Right_team",
+        "ball_ignore_point" : [
+            {"x":7942, "y":690}
+        ]
+    },
+    "cam3":{
+        "frame_size":{"width":"Null", "height":"Null"},
+        "calibration_points":[],
+        "goal_points":[],
+        "add_score": "Null",
+        "ball_ignore_point": []
+
+    },
+    "cam4":{
+        "frame_size":{"width":2560, "height":1440},
+        "calibration_points": [
+            {"frame_x": 1983, "frame_y": 300, "real_x":0, "real_y":0},
+            {"frame_x": 2224, "frame_y": 234, "real_x":-7, "real_y":0},
+            {"frame_x": 1769, "frame_y": 221, "real_x":0, "real_y":-2.6},
+            {"frame_x": 1460, "frame_y": 447, "real_x":7, "real_y":0},
+            {"frame_x": 1384, "frame_y": 122, "real_x":0, "real_y":-7.6},
+            {"frame_x": 3, "frame_y": 567, "real_x":16, "real_y":-6.4},
+            {"frame_x": 100, "frame_y": 789, "real_x":16, "real_y":-1.5},
+            {"frame_x": 210, "frame_y": 1083, "real_x":16, "real_y":1.5},
+            {"frame_x": 2224, "frame_y": 392, "real_x":0, "real_y":2.6},
+            {"frame_x": 2004, "frame_y": 67, "real_x":-16, "real_y":-7.6},
+            {"frame_x": 2453, "frame_y": 226, "real_x":-16, "real_y":1.5}
+        ],
+        "goal_points": [
+            {"x": 93, "y": 639},
+            {"x": 32, "y": 448},
+            {"x": 0, "y": 472},
+            {"x": 25, "y": 692},
+            {"x": 50, "y": 814},
+            {"x": 140, "y": 1101},
+            {"x": 217, "y": 1069}
+        ],
+        "add_score": "Right_team",
+        "ball_ignore_point": [
+            {"x":8230, "y":-261}
+        ]
+        
+    },
+    "cam5":{
+        "frame_size":{"width":"Null", "height":"Null"},
+        "calibration_points":[],
+        "goal_points":[],
+        "add_score": "Null",
+        "ball_ignore_point": []
+
+    },
+    "cam6":{
+        "frame_size":{"width":2560, "height":1440},
+        "calibration_points": [
+            {"frame_x": 479, "frame_y": 291, "real_x":0, "real_y":0},
+            {"frame_x": 248, "frame_y": 405, "real_x":0, "real_y":2.6},
+            {"frame_x": 685, "frame_y": 197, "real_x":0, "real_y":-2.6},
+            {"frame_x": 992, "frame_y": 358, "real_x":-7, "real_y":0},
+            {"frame_x": 229, "frame_y": 268, "real_x":7, "real_y":0},
+            {"frame_x": 425, "frame_y": 90, "real_x":16, "real_y":-7.6},
+            {"frame_x": 1048, "frame_y": 63, "real_x":0, "real_y":-7.6},
+            {"frame_x": 2467, "frame_y": 275, "real_x":-16, "real_y":-7.6},
+            {"frame_x": 2421, "frame_y": 552, "real_x":-16, "real_y":-1.5},
+            {"frame_x": 2343, "frame_y": 838, "real_x":-16, "real_y":1.5},
+            {"frame_x": 15, "frame_y": 288, "real_x":16, "real_y":1.5},
+            {"frame_x": 151, "frame_y": 219, "real_x":16, "real_y":-1.5}
+        ],
+        "goal_points": [
+            {"x": 2345, "y": 838},
+            {"x": 2440, "y": 862},
+            {"x": 2488, "y": 578},
+            {"x": 2494, "y": 212},
+            {"x": 2445, "y": 183},
+            {"x": 2411, "y": 361}
+        ],
+        "add_score": "Left_team",
+        "ball_ignore_point": [
+            {"x":-8084, "y":-414}
+
+        ]
+
+    },
+    "cam7":{
+        "frame_size":{"width":"Null", "height":"Null"},
+        "calibration_points":[],
+        "goal_points":[],
+        "add_score": "Null",
+        "ball_ignore_point": []
+
+    },
+    "cam8":{
+        "frame_size":{"width":2560, "height":1440},
+        "calibration_points": [
+            {"frame_x": 2100, "frame_y": 304, "real_x":0, "real_y":0},
+            {"frame_x": 1892, "frame_y": 192, "real_x":0, "real_y":2.6},
+            {"frame_x": 2319, "frame_y": 434, "real_x":0, "real_y":-2.6},
+            {"frame_x": 2154, "frame_y": 123, "real_x":16, "real_y":7.6},
+            {"frame_x": 1536, "frame_y": 36, "real_x":0, "real_y":7.6},
+            {"frame_x": 104, "frame_y": 148, "real_x":-16, "real_y":7.6},
+            {"frame_x": 122, "frame_y": 420, "real_x":-16, "real_y":1.5},
+            {"frame_x": 177, "frame_y": 704, "real_x":-16, "real_y":-1.5},
+            {"frame_x": 1578, "frame_y": 315, "real_x":-7, "real_y":0},
+            {"frame_x": 2343, "frame_y": 309, "real_x":7, "real_y":0},
+            {"frame_x": 2431, "frame_y": 275, "real_x":16, "real_y":1.5}
+        ],
+        "goal_points": [
+            {"x": 133, "y": 45},
+            {"x": 81, "y": 77},
+            {"x": 61, "y": 430},
+            {"x": 86, "y": 703},
+            {"x": 185, "y": 682},
+            {"x": 154, "y": 194}
+        ],
+        "add_score": "Left_team",
+        "ball_ignore_point": [
+            {"x":-7915, "y":625}
+
+        ]
+
+    }
+}

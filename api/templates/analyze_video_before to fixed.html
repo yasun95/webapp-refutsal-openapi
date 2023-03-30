@@ -1,0 +1,196 @@
+<!-- 
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Analyzing Video....</title>
+    <style>
+      .loading-bar {
+        width: 0%;
+        height: 20px;
+        transition: width 0.2s ease-in-out, background-color 1s;
+        background-color: rgb(128, 0, 0);
+        margin-bottom: 10px;
+      }
+      .percent {
+        margin-top: 10px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Analyzing Video....</h1>
+    <div>
+      <h2>Detect Goal</h2>
+      <div class="loading-bar" id="loading-bar-goal"></div>
+      <div class="percent" id="percent-goal">0%</div>
+    </div>
+    <div>
+      <h2>Make Heatmap</h2>
+      <div class="loading-bar" id="loading-bar-heatmap"></div>
+      <div class="percent" id="percent-heatmap">0%</div>
+    </div>
+    <div>
+      <h2>Upload Data</h2>
+      <div class="loading-bar" id="loading-bar-upload"></div>
+      <div class="percent" id="percent-upload">0%</div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        var loadingBarGoal = $("#loading-bar-goal");
+        var percentElemGoal = $("#percent-goal");
+        loadingBarGoal.css("width", "0%");
+        percentElemGoal.text("0%");
+
+        var loadingBarHeatmap = $("#loading-bar-heatmap");
+        var percentElemHeatmap = $("#percent-heatmap");
+        loadingBarHeatmap.css("width", "0%");
+        percentElemHeatmap.text("0%");
+
+        var loadingBarUpload = $("#loading-bar-upload");
+        var percentElemUpload = $("#percent-upload");
+        loadingBarUpload.css("width", "0%");
+        percentElemUpload.text("0%");
+
+        var sourceGoal = new EventSource(
+          "/analyze/detect/goal?UUID={{ name }}"
+        );
+        sourceGoal.onmessage = function (event) {
+          var data = JSON.parse(event.data);
+          var percent = data.percent;
+          var intPercent = parseInt(percent);
+          loadingBarGoal.css("width", intPercent + "%");
+          percentElemGoal.text(intPercent + "%");
+          if (percent < 20) {
+            loadingBarGoal.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 80)) + ",0)"
+            );
+          } else if (percent < 40) {
+            loadingBarGoal.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 60)) + ",0)"
+            );
+          } else if (percent < 60) {
+            loadingBarGoal.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 40)) + ",0)"
+            );
+          } else if (percent < 80) {
+            loadingBarGoal.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 20)) + ",0)"
+            );
+          } else {
+            loadingBarGoal.css("background-color", "rgb(0,255,0)");
+            loadingBarGoal.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 20)) + ",0)"
+            );
+          }
+          if (percent == 100) {
+            source.close();
+            percentElemGoal.text("100%");
+            loadingBarGoal.css("width", "100%");
+            // setTimeout(function () {
+            //   window.location.href = "/analyze?uuid{{ name }}";
+            // }, 1000);
+          }
+        };
+
+        var sourceHeatmap = new EventSource(
+          "/analyze/make/heatmap?UUID={{ name }}"
+        );
+        sourceHeatmap.onmessage = function (event) {
+          var data = JSON.parse(event.data);
+          var percent = data.percent;
+          var intPercent = parseInt(percent);
+          loadingBarHeatmap.css("width", intPercent + "%");
+          percentElemHeatmap.text(intPercent + "%");
+          if (percent < 20) {
+            loadingBarHeatmap.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 80)) + ",0)"
+            );
+          } else if (percent < 40) {
+            loadingBarHeatmap.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 60)) + ",0)"
+            );
+          } else if (percent < 60) {
+            loadingBarHeatmap.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 40)) + ",0)"
+            );
+          } else if (percent < 80) {
+            loadingBarHeatmap.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 20)) + ",0)"
+            );
+          } else {
+            loadingBarHeatmap.css("background-color", "rgb(0,255,0)");
+            loadingBarHeatmap.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 20)) + ",0)"
+            );
+          }
+          if (percent == 100) {
+            sourceHeatmap.close();
+            percentElemHeatmap.text("100%");
+            loadingBarHeatmap.css("width", "100%");
+            // setTimeout(function () {
+            //   window.location.href = "/analyze?uuid{{ name }}";
+            // }, 1000);
+          }
+        };
+
+        var sourceUpload = new EventSource(
+          "/analyze/upload/data?UUID={{ name }}"
+        );
+        sourceUpload.onmessage = function (event) {
+          var data = JSON.parse(event.data);
+          var percent = data.percent;
+          var intPercent = parseInt(percent);
+          loadingBarUpload.css("width", intPercent + "%");
+          percentElemUpload.text(intPercent + "%");
+          if (percent < 20) {
+            loadingBarUpload.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 80)) + ",0)"
+            );
+          } else if (percent < 40) {
+            loadingBarUpload.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 60)) + ",0)"
+            );
+          } else if (percent < 60) {
+            loadingBarUpload.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 40)) + ",0)"
+            );
+          } else if (percent < 80) {
+            loadingBarUpload.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 20)) + ",0)"
+            );
+          } else {
+            loadingBarUpload.css("background-color", "rgb(0,255,0)");
+            loadingBarUpload.css(
+              "background-color",
+              "rgb(255," + Math.round(255 * (percent / 20)) + ",0)"
+            );
+          }
+          if (percent == 100) {
+            sourceUpload.close();
+            percentElemUpload.text("100%");
+            loadingBarUpload.css("width", "100%");
+            setTimeout(function () {
+              window.location.href = "/result?uuid{{ name }}";
+            }, 1000);
+          }
+        };
+      });
+    </script>
+  </body>
+</html> -->

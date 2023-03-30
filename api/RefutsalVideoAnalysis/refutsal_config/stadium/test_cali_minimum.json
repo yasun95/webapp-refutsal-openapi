@@ -1,0 +1,39 @@
+{   
+    "uuid":"0x1test1x0", //경기장 uuid
+    "name": "byolnae1", //경기장 이름
+    "width":32, //경기장 가로 길이(m)
+    "height":15.2, // 경기장 세로 길이(m)
+    "cam1":{
+        "frame_size":{"width":"Null", "height":"Null"}, // 아래 3가지 기준 좌표를 잡았을때의 카메라의 해상도
+        "calibration_points":[],
+        "goal_points":[],
+        "ball_ignore_point": []
+    },
+    "cam2":{
+        "frame_size":{"width":2560, "height":1440}, 
+        "calibration_points": [
+            {"frame_x": 237, "frame_y": 330, "real_x":-16, "real_y":7.6}, // 화면상 픽셀x, 화면상 픽셀y, 실제 위치(m), 실제 좌표(m) 
+            {"frame_x": 185, "frame_y": 375, "real_x":-16, "real_y":6.4},
+            {"frame_x": 517, "frame_y": 383, "real_x":0, "real_y":2.6},
+            {"frame_x": 94, "frame_y": 573, "real_x":-7, "real_y":0},
+            {"frame_x": 338, "frame_y": 535, "real_x":0, "real_y":0},
+            {"frame_x": 155, "frame_y": 716, "real_x":0, "real_y":-2.6},
+            {"frame_x": 825, "frame_y": 148, "real_x":0, "real_y":7.6},
+            {"frame_x": 1369, "frame_y": 477, "real_x":0, "real_y":10.3},
+            {"frame_x": 2299, "frame_y": 41, "real_x":16, "real_y":6.4},
+            {"frame_x": 2303, "frame_y": 307, "real_x":16, "real_y":1.5},
+            {"frame_x": 2304, "frame_y": 631, "real_x":16, "real_y":-1.5}
+        ],
+        "goal_points": [
+            {"x": 2290, "y": 622}, // 골대에 마스크를 만드는 점들 (pixel)
+            {"x": 2380, "y": 630},
+            {"x": 2355, "y": 302},
+            {"x": 2307, "y": 5},
+            {"x": 2197, "y": 2},
+            {"x": 2257, "y": 167}
+        ],
+        "ball_ignore_point" : [
+            {"x":7942, "y":690} // 경기장에 흰색 마크가 공으로 찍히는데 해당 지점 강제로 제거하기 위함
+        ]
+    }
+}
