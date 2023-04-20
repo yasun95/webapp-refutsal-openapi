@@ -15,7 +15,8 @@ class DBConfig:
     TEST_COURT_UUID = '3ddfb499c0b44b92'
 
     # Goal Tag Upload Config
-    MATCH_UUID = '0xtest_230220_1'
+    MATCH_UUID = '408daf5554369901'
+    # MATCH_UUID = 'dc05cc7f374848d7'
     GOAL_TAG_DBNAME = 'refutsal_test_db'
 
     # SQLALCHEMY 
@@ -33,7 +34,8 @@ class PathConfig:
     VIDEO_PATH = os.path.abspath('api/resources/download_video') + '/'
 
     # Goal Tag
-    GOAL_ANALYSIS_CSV_PATH = os.path.abspath('api/resources/csv/goal_tag') + '/'
+    GOAL_DETECTION_SCRIPT_PATH = os.path.abspath('api/RefutsalVideoAnalysis/refutsal/goal_detection_main.py')
+    GOAL_DETECITON_CSV_PATH = os.path.abspath('api/resources/csv/goal_tag') + '/'
 
     # Player Classification
     PLAYER_CLASSIFICATION_SCRIPT_PATH = os.path.abspath('api/RefutsalVideoAnalysis/refutsal/refutsal_detector.py')

@@ -7,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from refutsal_util.birds_eye_utils import getpoint
 player =[]
 ground_points = []
-#player_pos= np.array([[]])
+
 player_pos= np.empty((0,2), int)
 
 # 기준좌표 작성해야할 영상 / 사진 (.jpg, .mp4, .avi)
@@ -20,8 +20,3 @@ while cap.isOpened():
     getpoint(frame)
     cap.release()
     break
-#YoloDetect()
-#testHomography()
-#playerHomography()
-
-

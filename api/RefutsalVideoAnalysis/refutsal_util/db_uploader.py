@@ -15,14 +15,6 @@ class DbUploader:
     def __init__(self, host:str, port:int, user:str, password:str, db:str, uuid:str,
                 left_team_color:str, right_team_color:str, goal_tag_table_name:str, heatmap_table_name:str
                 ) -> None:
-        """
-        example)
-        host='13.125.163.172', 
-        port=51614, user='cv_module', 
-        password='1234', 
-        db='refutsal_test_db', 
-        charset='utf8'
-        """
         self.host = host
         self.port = port
         self.user = user
@@ -102,7 +94,6 @@ class DbUploader:
         for i in range(len(goal_tags)):
             data['goal_tags'].append({
                 'id': i,
-                #'camnum':goal_tags[i][0],
                 'tag': goal_tags[i][1],
                 'min': int(goal_tags[i][2]),
                 'sec': int(goal_tags[i][3])
@@ -123,7 +114,6 @@ class DbUploader:
             return self.cluster_data
     def readCamSettingDb(self, court_uuid):
         cursor = self.conn.cursor()
-        #cursor.execute("SELECT COURT_AUX_INFO FROM REFUTSAL_COURT_TABLE")
         try:
             cursor.execute("SELECT COURT_AUX_INFO FROM REFUTSAL_COURT_TABLE WHERE COURT_UUID LIKE '%s'" % (court_uuid))
             data = cursor.fetchall()
@@ -290,20 +280,3 @@ class DbUploader:
         # plt.show()
 
         fig.savefig(save_path)
-
-"""
-test_tags = [(1, 3, 0), (0, 45, 10), (1, 60, 50), (0, 90, 45)]
-
-sw = SqlWriter(
-    host='13.125.163.172', 
-    port=57790, user='cv_module', 
-    password='1234', 
-    db='refutsal_test_db',
-    uuid='0x_test2_xxx'
-    )
-
-sw.makeJsonTag(test_tags)
-sw.uploadTagDb()
-print("success")
-"""
-

@@ -27,10 +27,7 @@ class RefutsalCluster(CsvReader, CsvWriter):
 
         self.Timer = [0,0,0,0,0]
         self.start_time = 0
-        
-        
-        #self.group_data = np.array(range(len(self.origindata)))
-        #self.group_data = self.group_data.reshape(len(self.group_data),1)
+
     def timerStart(self):
         self.start_time = time.time()
     def timerStop(self, timernum):
@@ -45,7 +42,10 @@ class RefutsalCluster(CsvReader, CsvWriter):
         csv reader 클래스 이용해서 여러 파일에서 한 프레임 씩 가져오기
         가져온 프레임은 self.origindata에 pandas DataFrame 형태로 저장
         """
+        print("last_frame : ",self.last_frame)
+        print(self.last_row)
         self.timerStart()
+
         #before get new frame init all data
         self.group_data = []
         self.disdict = {}
@@ -53,8 +53,12 @@ class RefutsalCluster(CsvReader, CsvWriter):
         self.datasize = 0
         self.dismat = []
         self.origindata = pd.DataFrame(index=range(0), columns=['frame', 'camnum', 'id', 'team', 'cls','x', 'y'])
-        
-        self.origindata = self.readFrame()
+
+        # Skip the frame
+        skip_time = 20
+        for i in range(skip_time):
+            self.origindata = self.readFrame()
+  
         self.timerStop(1)
         if self.getStauts():
             self.data_size = len(self.origindata)
@@ -83,7 +87,6 @@ class RefutsalCluster(CsvReader, CsvWriter):
         y2=Y.y
         
         if(camnum1==camnum2): #cam number에 대한 보상 (같은 카메라의 대상끼린 군집X)
-            #dis = inf
             dis = 1000
             return dis
         if((cls1 != cls2)): # 인식된 라벨이 다르면 군집 X
@@ -91,26 +94,12 @@ class RefutsalCluster(CsvReader, CsvWriter):
             return dis
 
         dis = math.sqrt((x1-x2)**2 + (y1-y2)**2)
-        
-        """
-        if((team1 != 0)&(team2!=0)): # team type 에 대한 거리보상
-            if(team1 == team2):
-                dis = dis*1
-            else:
-                dis = dis*2
-        """
+
         if((team1 != 0)&(team2!=0)): # team type 에 대한 거리보상(팀이다르면 군집 X)
             if(team1 == team2):
                 dis = dis*0.5
             else:
                 dis = 999
-        """
-        if((id1!=0)&(id2!=0)): #player id에 대한 보상
-            if(id1 == id2):
-                dis = dis*0.5
-            else:
-                dis = dis*2
-        """
         return dis
 
     def makeDisMat(self):
@@ -134,7 +123,6 @@ class RefutsalCluster(CsvReader, CsvWriter):
         return self.dismat
     def showDisMat(self):
         sns.heatmap(self.dismat, annot=False)
-        #plt.show()
         plt.show(block=False)
         plt.pause(10000)
         plt.close()
@@ -178,8 +166,7 @@ class RefutsalCluster(CsvReader, CsvWriter):
         graph_list = []
         for data in self.disdict:
             graph_list.append(data[1])
-        #plt.plot(graph_list)
-        #plt.show()
+
         self.timerStop(2)
 
     def _find(self, val):
@@ -263,9 +250,6 @@ class RefutsalCluster(CsvReader, CsvWriter):
             #player의 csv 원본 정보는  
             #self.origindata.iloc[player].x -> x라벨 데이터 요런식으로 
             if self.print_en >=2:
-                #print("data 갯수 : ",len(self.origindata))
-                #print(self.origindata.iloc[player].x, self.origindata.iloc[player].y)
-                #print("now player", player)
                 print(self.origindata.iloc[player])
             sum_x +=self.origindata.iloc[player].x
             sum_y +=self.origindata.iloc[player].y
@@ -303,7 +287,6 @@ class RefutsalCluster(CsvReader, CsvWriter):
         leave_player : 남길 오브젝트 수
         """
         self.timerStart()
-        #self.cluster_tree = []
         self.cluster_tree.append(self.group_data[:])
         if self.print_en >=2:
             print("init_tree: ")
@@ -320,7 +303,6 @@ class RefutsalCluster(CsvReader, CsvWriter):
             id2 = self._find(match[0][1])
             if self.print_en >=2: print(id1,":",match[0][0], "<-", id2,":",match[0][1])
 
-
             # 클러스터링 조건 체크 (그룹화 했을때 데이터 수가 9개 이하인지)
             # 그룹내에 같은 카메라 넘버가 없는지
             temparr = self.group_data[id1] + self.group_data[id2]
@@ -335,7 +317,6 @@ class RefutsalCluster(CsvReader, CsvWriter):
             else:
                 self._combine(id1, id2)
                 temp = self.group_data[:]
-                #self.cluster_tree.append(np.array(self.group_data))
                 self.cluster_tree.append(temp)
 
             if(self.print_en >= 2):
@@ -358,7 +339,6 @@ class RefutsalCluster(CsvReader, CsvWriter):
             
             #combine_group 
         if self.print_en >=1: #클러스터링 (프레임별)결과 출력
-            #print(self.cluster_tree)
             print("count: ", len(self.group_data), " object")
             print("group data : ",self.group_data)
             print("----------------------------------------")

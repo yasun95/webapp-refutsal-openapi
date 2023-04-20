@@ -36,9 +36,7 @@ class FilePathCollector:
         for file in forder:
             name, ext = os.path.splitext(file)
             if ext == self.findformat: #.avi만 추출
-                #path = self.forder_path+'\\'+file
                 path = os.path.join(self.forder_path, file)
-                #print(path)
                 self.filepath.append(path)
                 self.tuneval.append(0)
         self.filepath.sort()
@@ -101,15 +99,11 @@ class FilePathCollector:
             sys.exit()
         return(os.path.basename(self.filepath[filenum]))
 
-
-
-
-
-filepath1 = "F:\\bin\\Device\\Download\\11-21-30~40\\08_2022-11-21_223000_224000.avi"
-filepath2 = "F:\\bin\\Device\\Download\\11-21-30~40\\07_2022-11-21_223000_224000.avi"
-filepath3 = "F:\\bin\\Device\\Download\\11-21-30~40\\06_2022-11-21_223000_224000.avi"
-filepath = "F:\\bin\\Device\\Download\\11-21-30~40\\01_2022-11-21_223000_224000.avi"
-
+# Test Video File Path
+# filepath1 = "F:\\bin\\Device\\Download\\11-21-30~40\\08_2022-11-21_223000_224000.avi"
+# filepath2 = "F:\\bin\\Device\\Download\\11-21-30~40\\07_2022-11-21_223000_224000.avi"
+# filepath3 = "F:\\bin\\Device\\Download\\11-21-30~40\\06_2022-11-21_223000_224000.avi"
+# filepath = "F:\\bin\\Device\\Download\\11-21-30~40\\01_2022-11-21_223000_224000.avi"
 
 
 def getImage(path, frame, size=1):

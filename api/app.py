@@ -1,15 +1,17 @@
-from flask import Flask, render_template, Response, request, redirect, url_for, jsonify, session, current_app
+import time, os, sys, json, requests, uuid, subprocess, threading, csv
+import pandas as pd
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from queue import Queue
+
+from flask import Flask, render_template, Response, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_restful import Api, reqparse
+from flask_restful import Api
 from flask_cors import CORS
 
 from config import *
-from models import db, REFUTSAL_COURT_TABLE, REFUTSAL_MATCH_TABLE, REFUTSAL_REPORT_TABLE, REFUTSAL_TAG_TABLE
+from models import db
 from .video_downloader import VideoDownloader
-import threading
-import time, os, sys, json, requests, uuid, subprocess
-import cv2
-from pathlib import Path
 
 # Directory Setting
 ROOT = Path(os.getcwd())
@@ -31,8 +33,37 @@ api = Api(app)
 # Video
 video_downloader = VideoDownloader()
 
+# Initializing - User & Video Info
 video_urls = {}
+camnums = {}
 filenames = {}
+video_paths = {}
+
+# Initializing - Goal Detection
+goal_deteciton_csv_filename = {}
+add_camnum_filenum = {}
+camera_number = {}
+cmd_goal_deteciton = {}
+proc_goal = {}
+
+# Initializing - Player Detection
+camera_number = {}
+cmd_player_classification = {}
+proc_pd = {}
+
+# Initializing - Birds Eye View
+add_camnum_filenums = {}
+cmd_birds_eye_view = {}
+proc_bev = {}
+
+# Initializing - Heatmap
+proc_heat = {}
+
+# Youtube Test Video URL
+# CAM2 : ahttps://www.youtube.com/watch?v=ovcnQJ2t0EI
+# CAM4 : https://www.youtube.com/watch?v=jBlrOE6dHmg
+# CAM6 : https://www.youtube.com/watch?v=0xtc_FBwR-g
+# CAM8 : https://www.youtube.com/watch?v=9dSG69MkOhE
 
 FLAG = False
 
@@ -43,279 +74,305 @@ def main_page():
 @app.route('/users', methods=['GET', 'POST'])
 def user_info():
     if request.method == 'GET':
+        # Make the uuid, if you want. 
         # UUID = uuid.uuid4
         session['UUID'] = '950522'
-        return render_template('input_info_8cam.html')
+        return render_template('input_info.html')
     elif request.method == 'POST':
         return render_template('download_video.html')
 
 @app.route('/download', methods=['GET', 'POST'])
 def download():
     UUID = session.get('UUID', None)
-    camnum = request.form['camnum']
     vest_color1 = request.form['vest_color1']
     vest_color2 = request.form['vest_color2']
-    video_url = request.form['video_url']
-    
-    print('download info : ', UUID, camnum, vest_color1, vest_color2)
 
-    filename = str(camnum) + str(UUID) + '.avi'
-    video_code = video_url.lstrip('https://www.youtube.com/watch?v=')
+    camnum1 = request.form['camnum1']
+    camnum2 = request.form['camnum2']
+    camnum3 = request.form['camnum3']
+    camnum4 = request.form['camnum4']
 
-    # Set the download Directory and File Name
-    download_dir = DOWNLOAD_DIR / str(UUID)
-    download_dir.mkdir(parents=True, exist_ok=True)
+    video_url1 = request.form['video_url1']
+    video_url2 = request.form['video_url2']
+    video_url3 = request.form['video_url3']
+    video_url4 = request.form['video_url4']
 
-    video_path = PathConfig.VIDEO_PATH + str(UUID)
+    filename1 = str(camnum1) + str(UUID) + '.avi'
+    filename2 = str(camnum2) + str(UUID) + '.avi'
+    filename3 = str(camnum3) + str(UUID) + '.avi'
+    filename4 = str(camnum4) + str(UUID) + '.avi'
 
-    download_thread = threading.Thread(target=video_downloader.download, args=(video_url, video_path + '/' + filename))
-    download_thread.start()
+    # video_code = video_url.lstrip('https://www.youtube.com/watch?v=')
 
-    # Set the User Info
-    video_urls[UUID] = video_url
-    filenames[camnum, UUID] = filename
-
+    # Session
     session['UUID'] = UUID
-    session['camnum'] = camnum
     session['vest_color1'] = vest_color1
     session['vest_color2'] = vest_color2
-    session['video_url'] = video_url
 
-    return render_template('download_video.html', name=UUID)
+    # Set the download Directory and File Name
+    download_dir = Path(PathConfig.VIDEO_PATH) / str(UUID)
+    download_dir.mkdir(parents=True, exist_ok=True)
+
+    video_path1 = download_dir / camnum1.rstrip("_")
+    video_path2 = download_dir / camnum2.rstrip("_")
+    video_path3 = download_dir / camnum3.rstrip("_")
+    video_path4 = download_dir / camnum4.rstrip("_")
+
+    video_path1.mkdir(parents=True, exist_ok=True)
+    video_path2.mkdir(parents=True, exist_ok=True)
+    video_path3.mkdir(parents=True, exist_ok=True)
+    video_path4.mkdir(parents=True, exist_ok=True)
+
+    # Multi Threading - Video Download
+    download_thread1 = threading.Thread(target=video_downloader.download, args=(video_url1, str(video_path1) + '/' + filename1))
+    download_thread2 = threading.Thread(target=video_downloader.download, args=(video_url2, str(video_path2) + '/' + filename2))
+    download_thread3 = threading.Thread(target=video_downloader.download, args=(video_url3, str(video_path3) + '/' + filename3))
+    download_thread4 = threading.Thread(target=video_downloader.download, args=(video_url4, str(video_path4) + '/' + filename4))
+
+    download_thread1.start()
+    download_thread2.start()
+    download_thread3.start()
+    download_thread4.start()
+
+    # Set the User Info
+    camnums[UUID] = [camnum1, camnum2, camnum3, camnum4]
+    video_urls[UUID] = [video_url1, video_url2, video_url3, video_url4]
+    filenames[UUID] = [filename1, filename2, filename3, filename4]
+    video_paths[UUID] = [video_path1, video_path2, video_path3, video_path4]
+
+    return render_template('download_video.html', uuid=UUID)
 
 @app.route('/load', methods=['GET', 'POST'])
 def load():
     UUID = session.get('UUID')
-    camnum = session.get('camnum')
     vest_color1 = session.get('vest_color1')
     vest_color2 = session.get('vest_color2')
 
-    print('load info : ', UUID, camnum, vest_color1, vest_color2)
-
-    video_url = video_urls[UUID]
-    filename = filenames[camnum, UUID]
-
     session['UUID'] = UUID
-    session['camnum'] = camnum
     session['vest_color1'] = vest_color1
     session['vest_color2'] = vest_color2
+    
+    progress_queue = Queue()
 
-    def generate():  
-        for i in range(1, 101):
-            time.sleep(0.1)
-            progress = video_downloader.progress(video_url, PathConfig.VIDEO_PATH + str(UUID) + '/' + filename)
-            yield 'data: {}\n\n'.format(json.dumps({'percent': progress}))
-            if progress == 100:
-                return Response
+    def check_progress(video_url, path, index):
+        progress = 0
+        while progress < 100:
+            progress = video_downloader.progress(video_url, path)
+            progress_queue.put((index, progress))
+            print('Video Download {}: {}%'.format(index, progress))
+        return 1
+
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = []
+        for i, video_url in enumerate([video_urls[UUID][0], video_urls[UUID][1], video_urls[UUID][2], video_urls[UUID][3]]):
+            path = video_paths[UUID][i] / filenames[UUID][i]
+            future = executor.submit(check_progress, video_url, path, i)
+            futures.append(future)
+
+    def generate():
+        time.sleep(0.1)
+        progress = 0
+        while True:
+            downloaded_videos = sum(check_progress(video_urls[UUID][i], video_paths[UUID][i] / filenames[UUID][i], i) for i in range(4))
+            progress = int(downloaded_videos / 4 * 100)
+            yield 'data: {}\n\n'.format(json.dumps({
+                'percent': progress
+            }))
+            if downloaded_videos == 4:
+                break
 
     return Response(generate(), mimetype='text/event-stream')
 
-@app.route('/analyze', methods=['GET', 'POST'])
-def analyze():
-    UUID = session.get('UUID')
-    camnum = session.get('camnum')
-    vest_color1 = session.get('vest_color1')
-    vest_color2 = session.get('vest_color2')
-
-    print('analyze info : ', UUID, camnum, vest_color1, vest_color2)
-
-    # Call the detect goal route
-    response = requests.get(f"http://localhost:5000/analyze/detect/goal?UUID={UUID}&camnum={camnum}&vest_color1={vest_color1}&vest_color2={vest_color2}")
-    if response.status_code != 200:
-        pass
-    
-    response = requests.get(f"http://localhost:5000/analyze/detect/player?UUID={UUID}&camnum={camnum}&vest_color1={vest_color1}&vest_color2={vest_color2}")
-    if response.status_code != 200:
-        pass
-
-    response = requests.get(f"http://localhost:5000/analyze/make/heatmap?UUID={UUID}&camnum={camnum}&vest_color1={vest_color1}&vest_color2={vest_color2}")
-    if response.status_code != 200:
-        pass
-
-    return render_template('analyze_video.html', name=UUID)
+GOAL_DETECT_FLAG = False
 
 @app.route('/analyze/detect/goal', methods=['GET', 'POST'])
 def detect_goal():
-    from .RefutsalVideoAnalysis.refutsal_util.goal_detection_db import GoalDetector
+    global GOAL_DETECT_FLAG
     UUID = request.args.get('UUID')
-    camnum = request.args.get('camnum')
-    vest_color1 = request.args.get('vest_color1')
-    vest_color2 = request.args.get('vest_color2')
 
-    print('Goal info : ', UUID, camnum, vest_color1, vest_color2)
+    goal_deteciton_path = PathConfig.GOAL_DETECITON_CSV_PATH + str(UUID)
+    Path(goal_deteciton_path).mkdir(parents=True, exist_ok=True)
 
-    goal_csv_path = PathConfig.GOAL_ANALYSIS_CSV_PATH + str(UUID)
-    Path(goal_csv_path).mkdir(parents=True, exist_ok=True)
+    if not GOAL_DETECT_FLAG:
+        for i in range(4):
+            add_camnum_filenum[i] = '/' + str(camnums[UUID][i])
+            goal_deteciton_csv_filename[i] = add_camnum_filenum[i] + 'goal_tag.csv'
+            cmd_goal_deteciton[i]= f'python3 {PathConfig.GOAL_DETECTION_SCRIPT_PATH} --input-path {video_paths[UUID][i]} --output-path {goal_deteciton_path} --output-filename {goal_deteciton_csv_filename[i].lstrip("/")} --host {DBConfig.HOST} --port {DBConfig.PORT} --user {DBConfig.USER} --password {DBConfig.PASSWORD} --db-name {DBConfig.DBNAME} --match-uuid {DBConfig.MATCH_UUID} --court-uuid {DBConfig.TEST_COURT_UUID}'
 
-    gd = GoalDetector(videodir = PathConfig.VIDEO_PATH + str(UUID),
-                    host = DBConfig.HOST,
-                    port = DBConfig.PORT,
-                    user = DBConfig.USER, 
-                    password = DBConfig.PASSWORD, 
-                    db = DBConfig.DBNAME, 
-                    court_uuid=DBConfig.TEST_COURT_UUID,
-                    )
-    try:
-        gd.setWriteDir(PathConfig.GOAL_ANALYSIS_CSV_PATH + str(UUID))
-        gd.printFilePath()
-        gd.makeOutputCsv()
+            subprocess.run(cmd_goal_deteciton[i], shell=True, check=True)
+    
+    GOAL_DETECT_FLAG = True
 
-    except ValueError:
-        print('Video file is not found.')
+    with open(goal_deteciton_path + '/goal_tag.csv', 'w', newline='') as csvfile:
+        fieldnames = ['camnum','team', 'min', 'sec']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+
+    progress = 100
 
     def generate():
-        try:
-            time.sleep(1)
-            for vidnum, vidname in enumerate(gd.getAllVideoPath()):
-                if gd.setVideo(filenum=vidnum, camnum=camnum ,resize=(1024,576)):
-                    gd.serchVideo(imgshow=False, color_filter='yellow')
-                    gd.remapFrame(5)
-                else:
-                    print("skip video : ", vidname, " \n\tdo not have enough goal points(least 4) on DBConfig file")
-                
-                progress = int(100 * (vidnum+1) / len(gd.getAllVideoPath()))
-                yield 'data: {}\n\n'.format(json.dumps({'percent': progress}))
-        except Exception as e:
-            print('Caught exception : ', e)
+        yield 'data: {}\n\n'.format(json.dumps({'percent': progress}))
 
     return Response(generate(), mimetype='text/event-stream')
+
+PLAYER_CLASSIFICATION_FLAG = False
+BIRDS_EYE_VIEW_FLAG = False
+CLUSTERING_FLAG = False
+DETECT_FLAG = False
 
 @app.route('/analyze/detect/player', methods=['GET', 'POST'])
 def detect_player():
+    global GOAL_DETECT_FLAG, PLAYER_CLASSIFICATION_FLAG, BIRDS_EYE_VIEW_FLAG, CLUSTERING_FLAG, DETECT_FLAG
     UUID = request.args.get('UUID')
-    camnum = request.args.get('camnum')
     vest_color1 = request.args.get('vest_color1')
     vest_color2 = request.args.get('vest_color2')
 
-    if UUID is None:
-        UUID = '950522'
-    if camnum is None:
-        camnum = '02_'
-    add_file = '/' + str(camnum)
-    camera_number = camnum.lstrip("0")
-    camera_number = camera_number.rstrip("_")
+    session['UUID'] = UUID
+    session['vest_color1'] = vest_color1
+    session['vest_color2'] = vest_color2
 
-    progress = {'player_classification': 0, 'birds_eye_view' : 0, 'clustering': 0}
+    for i in range(4):
+        add_camnum_filenum[i] = '/' + str(camnums[UUID][i])
+        camera_number[i] = camnums[UUID][i].lstrip("0")
+        camera_number[i] = camera_number[i].rstrip("_")
+        add_camnum_filenums[i] = add_camnum_filenum[i].lstrip('/')
 
-    PLAYER_CLASSIFICATION_FLAG = False
-    BIDRS_EYE_VIEW_FLAG = False
-    CLUSTERING_FLAG = False
+    progress = 0
 
-    print('detect info : ', UUID, camnum, vest_color1, vest_color2)
+    # Player Classification
+    player_classification_path = PathConfig.PLAYER_CLASSIFICATION_CSV_PATH + str(UUID)
+    if not os.path.exists(player_classification_path):
+        os.makedirs(player_classification_path)
+    player_classification_csv_filename = 'player_classification_result.csv'
 
-    if not detect_player.subprocess_running and FLAG == False:
-        # Player Classification
-        player_classification_path = PathConfig.PLAYER_CLASSIFICATION_CSV_PATH + str(UUID)
-        if not os.path.exists(player_classification_path):
-            os.makedirs(player_classification_path)
-        player_classification_csv_filename = 'player_classification_result.csv'
-        cmd_player_classification = f'python3 {PathConfig.PLAYER_CLASSIFICATION_SCRIPT_PATH} --source {PathConfig.VIDEO_PATH + str(UUID)} --camera-number {int(camera_number)} --csv-path {player_classification_path + str(add_file) + player_classification_csv_filename} --vest-color1 {vest_color1} --vest-color2 {vest_color2}'
-        
-        detect_player.subprocess_running = True
-        PLAYER_CLASSIFICATION_FLAG = True
+    if GOAL_DETECT_FLAG and not PLAYER_CLASSIFICATION_FLAG:
+    #     # start = time.time()
+        processes = []
+        for i in range(4):
+            cmd_player_classification[i] = f'python3 {PathConfig.PLAYER_CLASSIFICATION_SCRIPT_PATH} --source {video_paths[UUID][i]} --camera-number {int(camera_number[i])} --csv-path {player_classification_path + add_camnum_filenum[i] + player_classification_csv_filename} --vest-color1 {vest_color1} --vest-color2 {vest_color2}'
+            proc_pd[i] = subprocess.Popen(cmd_player_classification[i], shell=True)
+            processes.append(proc_pd[i])
 
-        print("detect player 1")
-        if PLAYER_CLASSIFICATION_FLAG == True and BIDRS_EYE_VIEW_FLAG == False and CLUSTERING_FLAG == False:
-            # subprocess.call(cmd, shell=True)
-            try : 
-                proc = subprocess.Popen(cmd_player_classification, shell=True)
-                proc.communicate()
+        for process in processes:
+            process.wait()
 
-            except AssertionError as e:
-                print('Video Not found : ', e)
-
-                return Response
-
-        progress['player_classification'] = (1/3)*100            
-        PLAYER_CLASSIFICATION_FLAG = False
-        BIDRS_EYE_VIEW_FLAG = True
-
-        # Birds Eye View
-        print("birds eye view 1")
-        birds_eye_view_path = PathConfig.BIRDS_EYE_VIEW_CSV_PATH + str(UUID)
-        folder_name = '/' + str(UUID)
-        if not os.path.exists(birds_eye_view_path):
-            os.makedirs(birds_eye_view_path)
-        birds_eye_view_csv_filename = 'birds_eye_view_result.csv'
-        cmd_birds_eye_view = f'python3 {PathConfig.BIRDS_EYE_VIEW_SCRIPT_PATH} --UUID {str(UUID)} --input-path {player_classification_path} --output-path {birds_eye_view_path} --folder-name {folder_name} --output-filename {camnum + birds_eye_view_csv_filename} --host {DBConfig.HOST} --port {DBConfig.PORT} --user {DBConfig.USER} --password {DBConfig.PASSWORD} --db-name {DBConfig.DBNAME} --court-uuid {DBConfig.TEST_COURT_UUID}'
-
-        if PLAYER_CLASSIFICATION_FLAG == False and BIDRS_EYE_VIEW_FLAG == True and CLUSTERING_FLAG == False:
-            proc = subprocess.Popen(cmd_birds_eye_view, shell=True)
-            proc.communicate()
-
-        progress['birds_eye_view'] = (2/3)*100
-        BIDRS_EYE_VIEW_FLAG = False
-        CLUSTERING_FLAG = True
+        # print("PLAYER_CLASSIFICATION RUNTIME : ", time.time() - start)
+    PLAYER_CLASSIFICATION_FLAG = True
+    progress = int(100 * 1 / 3)
 
 
-        # Clustering
-        print("clustering 1")
-        clustering_path = PathConfig.CLUSTERING_CSV_PATH + str(UUID)
-        session['cluster_path'] = clustering_path
-        if not os.path.exists(clustering_path):
-            os.makedirs(clustering_path)
-        clustering_csv_filename = 'clustering_result.csv'
+    # Birds Eye View
+    birds_eye_view_path = PathConfig.BIRDS_EYE_VIEW_CSV_PATH + str(UUID)
+    folder_name = '/' + str(UUID)
+    if not os.path.exists(birds_eye_view_path):
+        os.makedirs(birds_eye_view_path)
+    birds_eye_view_csv_filename = 'birds_eye_view_result.csv'
+
+    if PLAYER_CLASSIFICATION_FLAG and not BIRDS_EYE_VIEW_FLAG:
+        # start = time.time()
+        cmd_birds_eye_view = f'python3 {PathConfig.BIRDS_EYE_VIEW_SCRIPT_PATH} --UUID {str(UUID)} --input-path {player_classification_path} --output-path {birds_eye_view_path} --folder-name {folder_name} --output-filename {birds_eye_view_csv_filename} --host {DBConfig.HOST} --port {DBConfig.PORT} --user {DBConfig.USER} --password {DBConfig.PASSWORD} --db-name {DBConfig.DBNAME} --court-uuid {DBConfig.TEST_COURT_UUID}'
+        subprocess.run(cmd_birds_eye_view, shell=True, check=True)
+    
+        # print("BIRDS_EYE_VIEW RUNTIME : ", time.time() - start)
+    BIRDS_EYE_VIEW_FLAG = True
+    progress = int(100 * 2 / 3)
+
+    # Clustering
+    clustering_path = PathConfig.CLUSTERING_CSV_PATH + str(UUID)
+    if not os.path.exists(clustering_path):
+        PathConfig.GOAL_DETECITON_CSV_PATH + str(UUID) + '/' + os.makedirs(clustering_path)
+    clustering_csv_filename = 'clustering_result.csv'
+
+    if BIRDS_EYE_VIEW_FLAG and not CLUSTERING_FLAG:
+        # start = time.time()
         cmd_clustering = f'python3 {PathConfig.CLUSTERING_SCRIPT_PATH} --UUID {str(UUID)} --input-path {birds_eye_view_path} --output-path {clustering_path} --output-filename {clustering_csv_filename}'
+        subprocess.run(cmd_clustering, shell=True, check=True)
 
-        if PLAYER_CLASSIFICATION_FLAG == False and BIDRS_EYE_VIEW_FLAG == False and CLUSTERING_FLAG == True:
-            proc = subprocess.Popen(cmd_clustering, shell=True)
-            proc.communicate()
+        # print("CLUSTERING RUNTIME : ", time.time() - start)
+    CLUSTERING_FLAG = True
+    progress = 100
 
-        detect_player.subprocess_running = False
-        CLUSTERING_FLAG = False
-        progress = 100
-
+    DETECT_FLAG = True
+    
     def generate():
-        # Simulate some work being done
-        time.sleep(1)
-        detect_player.subprocess_running = True
-        FLAG = True
+        
         yield 'data: {}\n\n'.format(json.dumps({'percent': progress}))
+        time.sleep(1)
         
     return Response(generate(), mimetype='text/event-stream')
 
-detect_player.subprocess_running = False
+HEATMAP_FLAG = False
 
 @app.route('/analyze/make/heatmap', methods=['GET', 'POST'])
 def make_heatmap():
+    global DETECT_FLAG, HEATMAP_FLAG
     UUID = request.args.get('UUID')
-    camnum = request.args.get('camnum')
-    clustering_path = session.get('clustering_path')
     vest_color1 = request.args.get('vest_color1')
     vest_color2 = request.args.get('vest_color2')
 
-    print('heatmap info : ', UUID, camnum, vest_color1, vest_color2)
+    session['UUID'] = UUID
+    session['vest_color1'] = vest_color1
+    session['vest_color2'] = vest_color2
+
+    print('heatmap info : ', UUID, vest_color1, vest_color2)
 
     # Heatmap
     heatmap_path = PathConfig.HEATMAP_PATH + str(UUID)
     if not os.path.exists(heatmap_path):
         os.makedirs(heatmap_path, exist_ok=True)
     heatmap_save_path = PathConfig.HEATMAP_PATH + str(UUID)
-    heatmap_csv_filename = 'heatmap_result.csv'
-    cmd_heatmap = f'python3 {PathConfig.HEATMAP_SCRIPT_PATH} --UUID {str(UUID)} --refutsal-path {PathConfig.REFUTSAL_PATH} --input-path {clustering_path} --output-path {heatmap_save_path} --output-filename {heatmap_csv_filename} --goal-tag {PathConfig.GOAL_ANALYSIS_CSV_PATH + str(UUID)} --host {DBConfig.HOST} --port {DBConfig.PORT} --user {DBConfig.USER} --password {DBConfig.PASSWORD} --db-name {DBConfig.DBNAME} --court-uuid {DBConfig.MATCH_UUID} --vest-color1 {vest_color1} --vest-color2 {vest_color2}'
+    clustering_path = PathConfig.CLUSTERING_CSV_PATH + str(UUID)
+    goal_tag_path = PathConfig.GOAL_DETECITON_CSV_PATH + str(UUID) + '/'
 
-    clustering_file = os.path.join(clustering_path, '/clustering_result.csv')
+    # Goal Tag csv file Merge
+    goal_tag1 = pd.read_csv(PathConfig.GOAL_DETECITON_CSV_PATH + str(UUID) + '/' + add_camnum_filenums[0] + 'goal_tag.csv')
+    goal_tag2 = pd.read_csv(PathConfig.GOAL_DETECITON_CSV_PATH + str(UUID) + '/' + add_camnum_filenums[1] + 'goal_tag.csv')
+    goal_tag3 = pd.read_csv(PathConfig.GOAL_DETECITON_CSV_PATH + str(UUID) + '/' + add_camnum_filenums[2] + 'goal_tag.csv')
+    goal_tag4 = pd.read_csv(PathConfig.GOAL_DETECITON_CSV_PATH + str(UUID) + '/' + add_camnum_filenums[3] + 'goal_tag.csv')
 
-    if not os.path.exists(clustering_file):
-        pass
-    else:
-        proc = subprocess.Popen(cmd_heatmap, shell=True)
-        proc.communicate()
-        exit_code = proc.wait()
+    merged_df = pd.merge(goal_tag1, goal_tag2, how='outer')
+    merged_df = pd.merge(merged_df, goal_tag3, how='outer')
+    merged_df = pd.merge(merged_df, goal_tag4, how='outer')
 
-        if exit_code == 0:
-            progress = 100
-        else:
-            progress = 0
+    drop_duplicates_df = merged_df.drop_duplicates(subset=['min', 'sec'])
+    drop_duplicates_df.to_csv(PathConfig.GOAL_DETECITON_CSV_PATH + str(UUID) + '/goal_tag.csv', index=False)
 
-    if 'progress' not in locals():
-        progress = 0
+    if DETECT_FLAG and not HEATMAP_FLAG:
+        cmd_heatmap = f'python3 {PathConfig.HEATMAP_SCRIPT_PATH} --UUID {str(UUID)} --refutsal-path {PathConfig.REFUTSAL_PATH} --input-path {clustering_path} --output-path {heatmap_save_path}  --goal-tag {goal_tag_path} --host {DBConfig.HOST} --port {DBConfig.PORT} --user {DBConfig.USER} --password {DBConfig.PASSWORD} --db-name {DBConfig.DBNAME} --court-uuid {DBConfig.MATCH_UUID} --vest-color1 {vest_color1} --vest-color2 {vest_color2}'
+        subprocess.run(cmd_heatmap, shell=True, check=True)
+    HEATMAP_FLAG = True
+
+    progress = 100
 
     def generate():
-        time.sleep(1)
         yield 'data: {}\n\n'.format(json.dumps({'percent': progress}))
+        time.sleep(1)
 
     return Response(generate(), mimetype='text/event-stream')
+
+@app.route('/analyze', methods=['GET', 'POST'])
+def analyze():
+    UUID = session.get('UUID')
+    vest_color1 = session.get('vest_color1')
+    vest_color2 = session.get('vest_color2')
+
+    session['UUID'] = UUID
+    session['vest_color1'] = vest_color1
+    session['vest_color2'] = vest_color2
+
+    response = requests.get(f"http://localhost:5000/analyze/detect/goal?UUID={UUID}&vest_color1={vest_color1}&vest_color2={vest_color2}")
+    if response.status_code != 200:
+        pass
+    
+    response = requests.get(f"http://localhost:5000/analyze/detect/player?UUID={UUID}&vest_color1={vest_color1}&vest_color2={vest_color2}")
+    if response.status_code != 200:
+        pass
+
+    response = requests.get(f"http://localhost:5000/analyze/make/heatmap?UUID={UUID}&vest_color1={vest_color1}&vest_color2={vest_color2}")
+    if response.status_code != 200:
+        pass
+
+    return render_template('analyze_video.html', uuid=UUID)
 
 @app.route('/result', methods=['GET', 'POST'])
 def result():

@@ -29,8 +29,8 @@ class BirdsEyeTrans(CsvWriter):
         self.stadium_size_y = (y+2)*1000
 
 
-    def transform(self, H_Metrix, output_path = None, foldername = None, output_file_name = None, ball_ignore_points = None):
-        self.makeOutputForder(outputpath=output_path, fordername=foldername, filename=output_file_name, fieldnames=['frame', 'camnum', 'id', 'team', 'cls', 'x', 'y'])
+    def transform(self, H_Metrix, output_path = None, fordername = None, output_file_name = None, ball_ignore_points = None):
+        self.makeOutputForder(outputpath=output_path, filename=output_file_name, fieldnames=['frame', 'camnum', 'id', 'team', 'cls', 'x', 'y'])
         self.openCsv()
         
         for each_player in self.df.itertuples():
@@ -57,9 +57,7 @@ class BirdsEyeTrans(CsvWriter):
                         skip = True    
             if (abs(final_arr[5]) < self.stadium_size_x/2) & (abs(final_arr[6]) < self.stadium_size_y/2) & (not skip):
                 self.writerowCsv(final_arr)
-                
-                
-                
+   
         self.closeCsv()
             
     def saveCsv(self):

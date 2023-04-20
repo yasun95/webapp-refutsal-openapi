@@ -2,20 +2,17 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Open_Api_v1</title>
+    <title>Open_Api_v2</title>
     <style>
-      body {
-        background-image: url("static/background/soccer2.jpeg");
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: center;
-      }
       .color-input {
         display: inline-block;
         width: 45%;
       }
       .center {
         text-align: center;
+      }
+      p select {
+        margin-right: 20px;
       }
     </style>
   </head>
@@ -26,11 +23,42 @@
         <p>
           camera number :
           <select name="camnum1">
-            <option value="01_">1</option>
-            <option value="02_">2</option>
-            <option value="03_">3</option>
+            <option value="02_" selected>2</option>
             <option value="04_">4</option>
+            <option value="06_">6</option>
+            <option value="08_">8</option>
           </select>
+          youtube URL : <input type="text" name="video_url1" />
+        </p>
+        <p>
+          camera number :
+          <select name="camnum2">
+            <option value="02_">2</option>
+            <option value="04_" selected>4</option>
+            <option value="06_">6</option>
+            <option value="08_">8</option>
+          </select>
+          youtube URL : <input type="text" name="video_url2" />
+        </p>
+        <p>
+          camera number :
+          <select name="camnum3">
+            <option value="02_">2</option>
+            <option value="04_">4</option>
+            <option value="06_" selected>6</option>
+            <option value="08_">8</option>
+          </select>
+          youtube URL : <input type="text" name="video_url3" />
+        </p>
+        <p>
+          camera number :
+          <select name="camnum4">
+            <option value="02_">2</option>
+            <option value="04_">4</option>
+            <option value="06_">6</option>
+            <option value="08_" selected>8</option>
+          </select>
+          youtube URL : <input type="text" name="video_url4" />
         </p>
         <p>
           vest color :
@@ -47,7 +75,7 @@
             <option value="YELLOW">YELLOW</option>
           </select>
         </p>
-        <p>youtube URL : <input type="text" name="video_url" /></p>
+
         <p>
           Insert to the match information and click the submit button.
           <input type="submit" value="submit" onclick="return validateForm()" />

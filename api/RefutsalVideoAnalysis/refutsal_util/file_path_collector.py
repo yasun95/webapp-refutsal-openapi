@@ -31,9 +31,7 @@ class FilePathCollector:
         for file in forder:
             name, ext = os.path.splitext(file)
             if ext == self.findformat: #.avi만 추출
-                #path = self.forder_path+'\\'+file
                 path = os.path.join(self.forder_path, file)
-                #print(path)
                 self.filepath.append(path)
         self.filepath.sort()
         

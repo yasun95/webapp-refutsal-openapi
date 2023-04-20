@@ -44,7 +44,7 @@ def showBirdsEyeView(frame_data, color = (255,0,0)):
     black_color = (0,0,0)
     puple_color = (255,0,255)
     white_color = (255,255,255)
-    #new_Board = np.ones((rows, cols, 3), dtype = np.uint8)*([0,255,0])
+
     new_board = np.full((rows, cols, 3), (71,193,129), dtype = np.uint8)
     new_board = cv2.circle(new_board, (int(cols/2), int(rows/2)), 100, white_color, 10)
     new_board = cv2.rectangle(new_board, (margin, margin), (cols-margin, rows-margin), white_color, 10)
@@ -54,12 +54,10 @@ def showBirdsEyeView(frame_data, color = (255,0,0)):
     if len(frame_data) == 0 :
         frame_data= np.empty((0,2), int)
 
-    #player_pos= np.array([78,530,1674],[587,457,500])
+
     print(type(frame_data))
     for i in range(len(frame_data)):
-        #print(frame_data.iloc[i].x)
         footpoint = [frame_data.iloc[i].x, frame_data.iloc[i].y]
-        #new_board = cv2.circle(new_board, (int(cols/2+footpoint[0]/1000*meter2fix), int(rows/2-footpoint[1]/1000*meter2fix)), 10, black_color, 10)
         try:
             if  frame_data.iloc[i].group <2:
                 continue
@@ -74,24 +72,17 @@ def showBirdsEyeView(frame_data, color = (255,0,0)):
         elif frame_data.iloc[i].team == 2:
             new_board = cv2.circle(new_board, (int(cols/2+footpoint[0]/1000*meter2fix), int(rows/2-footpoint[1]/1000*meter2fix)), 10, blue_color, 10)
 
-        #new_board = cv2.putText(new_board, str(i), (int(cols/2+footpoint[0]/1000*meter2fix), int(rows/2-footpoint[1]/1000*meter2fix)), cv2.FONT_HERSHEY_COMPLEX, 1 , color)
-    
     cv2.namedWindow("ground", cv2.WINDOW_NORMAL)
     cv2.imshow("ground", new_board)
     if cv2.waitKey(20) == ord('q'):
         sys.exit()
 
-#CSV_PATH ="C:\dev_program\Refutsal_Dev_Repo\data\\birds_eye_result\\08_2022-12-09_235000_000000.csv"
-#pv = PosVisualizer(data_type='birds_eye') # data_type = "clustering"
-
 CSV_PATH ="C:\dev_program\Refutsal_Dev_Repo\data\output\leave15.csv"
 pv = PosVisualizer(data_type='clustering') # data_type = "clustering"
 
-#pv.setData("C:\dev_program\Refutsal_Dev_Repo\data\output\output.csv")
 pv.setData(CSV_PATH)
 while pv.getStauts():
     pv.readFrame()
-    #print(pv.nowDF)
     print(pv.nowDF)
     showBirdsEyeView(pv.nowDF)
     print("---------")

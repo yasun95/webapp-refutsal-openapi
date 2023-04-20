@@ -44,12 +44,13 @@ class ConfigData(CamData):
                 data=alldata["cameraSetting"]
 
         elif host != None:
-             print(host)
-             print(port)
-             print(user)
-             print(password)
-             print(db_name)
-             print(court_uuid)
+            # Print The DB Info
+            # print(host)
+            # print(port)
+            # print(user)
+            # print(password)
+            # print(db_name)
+            # print(court_uuid)
              try:
                 self.conn = pymysql.connect(
                 host = host,
@@ -111,12 +112,3 @@ class ConfigData(CamData):
             header2.format("width",self.stadium_width,"")
         )
         return output
-"""
-JSON_PATH = "C:\dev_program\RefutsalVideoAnalysis\\refutsal_config\stadium\stadium_0xjsontest\cam1_clibration.json"
-
-config_data = ConfigData(JSON_PATH)
-print(config_data)
-print(config_data.camdata[1].frame_points)
-print(config_data.camdata[1].real_points)
-print(config_data.camdata[1].goal_points)
-"""

@@ -3,8 +3,6 @@ import numpy as np
 import sys
 import os
 def mouse_event(event, x, y, flags, param):
-    
-    #cv2.resizeWindow(winname="point_setting", width= 1024, height=648)
     if event == cv2.EVENT_LBUTTONUP:
         print(x, y)
         cv2.circle(param, (x,y), 3, (0,0,255), 3)
@@ -19,8 +17,6 @@ def mouse_event(event, x, y, flags, param):
         cv2.imwrite(os.path.join(path, file_name),param)
         print("save path = ",os.path.join(path, file_name))
         cv2.destroyWindow("point_setting")
-
-
     
 def getpoint(img):
     cv2.namedWindow("point_setting", cv2.WINDOW_NORMAL)
@@ -32,7 +28,6 @@ def getpoint(img):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     return img
-        
 
 def showBirdsEyeView(player_pos, color = (255,0,0)):
     meter2fix = 80
@@ -44,7 +39,6 @@ def showBirdsEyeView(player_pos, color = (255,0,0)):
     y = 2.5617
     point_color = (0, 0, 255)
     white_color = (255,255,255)
-    #new_Board = np.ones((rows, cols, 3), dtype = np.uint8)*([0,255,0])
     new_board = np.full((rows, cols, 3), (71,193,129), dtype = np.uint8)
     new_board = cv2.circle(new_board, (int(cols/2), int(rows/2)), 100, white_color, 10)
     new_board = cv2.rectangle(new_board, (margin, margin), (cols-margin, rows-margin), white_color, 10)
@@ -53,8 +47,6 @@ def showBirdsEyeView(player_pos, color = (255,0,0)):
     i = 0
     if len(player_pos) == 0 :
         player_pos= np.empty((0,2), int)
-
-    #player_pos= np.array([78,530,1674],[587,457,500])
 
     for footpoint in player_pos:
         new_board = cv2.circle(new_board, (int(cols/2+footpoint[0]/1000*meter2fix), int(rows/2-footpoint[1]/1000*meter2fix)), 10, point_color, 10)
@@ -104,7 +96,6 @@ def getBirdsEyeImg(new_board, player_pos, color = (255,0,0)):
     if len(player_pos) == 0 :
         player_pos= np.empty((0,2), int)
 
-    #player_pos= np.array([78,530,1674],[587,457,500])
     meter2fix = 80
     margin = int(0.5*meter2fix)
     rows = int(17*meter2fix+ margin*2) #경기장 사이즈

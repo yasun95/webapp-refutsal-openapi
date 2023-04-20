@@ -16,7 +16,6 @@ def parse_opt():
     parser.add_argument('--refutsal-path', type=str, default='')
     parser.add_argument('--input-path', type=str, default='')
     parser.add_argument('--output-path', type=str, default='')
-    parser.add_argument('--output-filename', type=str, default='')
     parser.add_argument('--goal-tag', type=str, default='')
     parser.add_argument('--host', type=str, default='')
     parser.add_argument('--port', type=int, default=0)
@@ -34,30 +33,12 @@ opt = parse_opt()
 
 #path
 ROOT = opt.refutsal_path
-GOALTAG = opt.goal_tag + '/goal_tag.csv'
+GOALTAG = opt.goal_tag + 'goal_tag.csv'
 CLUSTER_RESULT_PATH = opt.input_path + '/clustering_result.csv'
 HEATMAP_SAVE_PATH = opt.output_path + '/heatmap_result.png'
 
-
 #config
 TIME_GAP = 10 #중복 제거할 타임갭
-
-#Database Info
-DBNAME = 'refutsal_test_db'
-HOST = '3.38.252.50'
-PORT = 52683
-USER = 'cv_module'
-PASSWORD = '1234'
-UUID = '0xtest_taguploader'
-
-#refutsal.com
-HOST = '3.36.242.44'
-PORT = 3306
-USER = 'refutsal.tecs.club'
-PASSWORD = 'refutsal!@34'
-DBNAME = 'refutsal.tecs.club'
-MATCH_UUID = '0xtest_230220_1'
-TEST_COURT_UUID='3ddfb499c0b44b92'
 
 #DB 설정
 sw = DbUploader(
@@ -73,7 +54,6 @@ sw = DbUploader(
     heatmap_table_name = "REFUTSAL_REPORT_TABLE"
     )
 
-
 ## DB read
 #sw.readCamSettingDb(TEST_COURT_UUID)
 
@@ -84,8 +64,6 @@ tag_data=sw.readGoalCsv(GOALTAG)
 json_data = sw.makeGoalTag(tag_data)
 #태그 업로드
 sw.uploadTagDb(showdata=True)
-print(json_data)
-
 
 ## HEAT MAP
 #클러스터링 결과 csv 읽고 히트맵 작성

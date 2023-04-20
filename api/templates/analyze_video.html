@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Analyzing Video....</title>
+    <title>Open_Api_v2</title>
     <style>
       .loading-bar {
         width: 0%;
@@ -58,7 +58,7 @@
       }
 
       function updateProgress(route, element) {
-        var url = "/analyze/" + route + "?UUID={{ name }}";
+        var url = "/analyze/" + route + "?UUID={{ uuid }}";
         var eventSource = new EventSource(url);
         eventSource.onmessage = function (event) {
           var progress = JSON.parse(event.data).percent;

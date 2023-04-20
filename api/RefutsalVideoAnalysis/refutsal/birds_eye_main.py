@@ -8,22 +8,6 @@ from refutsal_util.birds_eye_utils import showGrid
 from refutsal_util.birds_eye_trans import BirdsEyeTrans
 from refutsal_util.file_path_collector import FilePathCollector
 
-CONFIG_JSON_PATH = 'C:\dev_program\RefutsalVideoAnalysis\\refutsal_config\stadium\\test_cali.json'
-fname ="C:\dev_program\Refutsal_Dev_Repo\\video\\08_2022-12-09_235000_000000.avi" #for Grid show
-
-# input_path = "C:\dev_program\RefutsalVideoAnalysis\input\\test_service\detect"
-# output_path = "C:\dev_program\RefutsalVideoAnalysis\input\\test_service"
-
-
-
-#refutsal.com
-HOST = '3.36.242.44'
-PORT = 3306
-USER = 'refutsal.tecs.club'
-PASSWORD = 'refutsal!@34'
-DBNAME = 'refutsal.tecs.club'
-TEST_COURT_UUID='3ddfb499c0b44b92'
-
 # SUNJONG EDIT
 def parse_opt():
     parser = argparse.ArgumentParser()
@@ -59,26 +43,19 @@ settingdata = ConfigData(
                         court_uuid = opt.court_uuid
                         )
 
-print('output path', output_path)
-print('output file name', opt.output_filename) 
-
 for file_path in file_list:
     filename = os.path.basename(file_path)
     camnum = int(filename[:2]) # 파일명 앞 2글자는 카메라 넘버
 
     data = settingdata.camdata[camnum]
     ball_ignore_point = settingdata.camdata[camnum].ignore_points
-    frame_points = data.frame_points
+    frame_points = data.frame_points * 2/3
     real_points = data.real_points
     stadium_size = [settingdata.stadium_width, settingdata.stadium_height]
 
-    #showGrid(fname, frame_points, real_points)
-    #cv2.waitKey(0)
     H_Metrix = cv2.findHomography(frame_points, real_points, cv2.RANSAC, 5.0)
     bt = BirdsEyeTrans(H_Metrix, make_csv=True, result_path=output_path)
     bt.setStadiumSize(stadium_size[0], stadium_size[1])
     bt.readCsv(file_path)
     # SUNJONG EDIT / FILENAME
-    bt.transform(H_Metrix, output_path=output_path, foldername=opt.folder_name ,output_file_name=opt.output_filename, ball_ignore_points=ball_ignore_point)
-
-
+    bt.transform(H_Metrix, output_path=output_path, output_file_name=  '0' + str(camnum) + '_' + opt.output_filename, ball_ignore_points=ball_ignore_point)

@@ -23,7 +23,7 @@ class CsvWriter:
         self.make_csv = make_csv
         self.f = None
         
-    def makeOutputForder(self, outputpath=None, fordername ='\\output',filename = 'output.csv', fieldnames = ['dataA', 'dataB', 'dataC']):
+    def makeOutputForder(self, outputpath=None, fordername ='\\output', filename = 'output.csv', fieldnames = ['dataA', 'dataB', 'dataC']):
         #실행파일의 경로에 폴더( /output )생성
         if outputpath == None:
             outputpath = os.path.dirname(os.path.abspath(__file__))
@@ -42,11 +42,7 @@ class CsvWriter:
 
     def openCsv(self, mode='a'):
         if self.make_csv == True:
-            #change write option
-            #save_path = self.outputfolder+output
-            print(os.path.join(self.outputfolder, self.outputfile))
-
-            save_path = os.path.join(self.outputfolder,self.outputfile)
+            save_path = os.path.join(self.outputfolder, self.outputfile)
             self.f = open(save_path,mode, newline='') # csv 파일 생성 w: write, a: append
             self.wr = csv.writer(self.f, delimiter=',')
     def writerowCsv(self, data):
@@ -54,18 +50,7 @@ class CsvWriter:
             csv_data = np.column_stack(data)
             for line in csv_data:
                 self.wr.writerow(line)
+                print(line)
     def closeCsv(self):
         if self.make_csv:
             self.f.close()
-
-"""
-###CsvWriter example code###
-
-cw=CsvWriter(make_csv=True)
-#output 경로 지정 안할경우 현재 폴더
-cw.makeOutputForder()
-cw.openCsv()
-cw.writerowCsv(["a", "b", "c"])
-cw.writerowCsv(["a", "b", "c"])
-cw.closeCsv()
-"""

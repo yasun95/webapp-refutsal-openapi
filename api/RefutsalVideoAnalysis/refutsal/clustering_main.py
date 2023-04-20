@@ -27,22 +27,11 @@ output_path = opt.output_path
 #print_en  0: 프린트 없음  1 : 최소 정보 2: 최대정보
 RC = RefutsalCluster(print_en=0)
 
-#입력타입1. 파일명 하나씩 등록 
-#RC.addFilePath('D:\library\yolov5-master\\runs\\testcsv\cam1r.csv')
-#RC.addFilePath('D:\library\yolov5-master\\runs\\testcsv\cam2r.csv')
-#RC.addFilePath('D:\library\yolov5-master\\runs\\testcsv\cam3r.csv')
-#RC.addFilePath('D:\library\yolov5-master\\runs\\testcsv\cam4r.csv')
-
-#입력타입2. 디렉토리 내부 모든 csv 파일 동시 등록
-#RC.addForderPath('C:\\dev_program\\Refutsal_Dev_Repo\\data\\birds_eye_result')
-# RC.addForderPath('C:\\dev_program\\RefutsalVideoAnalysis\\input\\test_service\\detect')
 RC.addForderPath(input_path)
 
 
 #결과 출력할 위치 생성
 fieldnames = ['frame', 'cls','id', 'team','x', 'y', 'group']
-#RC.makeOutputForder("C:\\dev_program\\Refutsal_Dev_Repo\\data", fieldnames=fieldnames)
-# RC.makeOutputForder('C:\\dev_program\\RefutsalVideoAnalysis\\input\\test_service\\detect', fieldnames=fieldnames)
 
 # SUNJONG EDIT / ADD FOLDER & FILE NAME
 RC.makeOutputForder(output_path, filename=opt.output_filename, fieldnames=fieldnames)

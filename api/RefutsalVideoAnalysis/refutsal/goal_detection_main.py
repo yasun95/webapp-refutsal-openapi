@@ -1,5 +1,5 @@
 import os
-import sys
+import sys, argparse
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from refutsal_util.goal_detection_db import GoalDetector
 #for SW subject
@@ -8,18 +8,39 @@ from refutsal_util.goal_detection_db import GoalDetector
 # VID_PATH = 'C:\dev_program\RefutsalVideoAnalysis\input\\test_service'
 # OUTPUT_PATH = 'C:\dev_program\RefutsalVideoAnalysis\input\\test_service'
 
-CAM_SETTING = os.path.abspath('refutsal_config/stadium/test_cali.json')
-VID_PATH = os.path.abspath('input/test_service')
-OUTPUT_PATH = os.path.abspath('input/test_service')
+# SUNJONG EDIT
+def parse_opt():
+    parser = argparse.ArgumentParser()
+    # parser.add_argument('--UUID', type=str, default='')
+    parser.add_argument('--input-path', type=str, default='')
+    parser.add_argument('--output-path', type=str, default='')
+    parser.add_argument('--output-filename', type=str, default='')
+    parser.add_argument('--host', type=str, default='')
+    parser.add_argument('--port', type=int, default=0)
+    parser.add_argument('--user', type=str, default='')
+    parser.add_argument('--password', type=str, default='')
+    parser.add_argument('--db-name', type=str, default='')
+    parser.add_argument('--match-uuid', type=str, default='')
+    parser.add_argument('--court-uuid', type=str, default='')
+    opt = parser.parse_args()
+
+    return opt
+
+opt = parse_opt()
+
+
+# CAM_SETTING = os.path.abspath('refutsal_config/stadium/test_cali.json')
+VID_PATH = opt.input_path
+OUTPUT_PATH = opt.output_path
 
 #refutsal.com
-HOST = '3.36.242.44'
-PORT = 3306
-USER = 'refutsal.tecs.club'
-PASSWORD = 'refutsal!@34'
-DBNAME = 'refutsal.tecs.club'
-UUID = '0xtest_taguploader'
-TEST_COURT_UUID='3ddfb499c0b44b92'
+HOST = opt.host
+PORT = opt.port
+USER = opt.user
+PASSWORD = opt.password
+DBNAME = opt.db_name
+UUID = opt.match_uuid
+TEST_COURT_UUID= opt.court_uuid
 
 #폴더내 모든 영상 분석
 #객체 선언 및 경로 설정 / 정보 확인
@@ -35,7 +56,7 @@ gd = GoalDetector(videodir = VID_PATH,
                   ) # DB setting file
 gd.setWriteDir(OUTPUT_PATH)
 gd.printFilePath() #출력 1  
-gd.makeOutputCsv()
+gd.makeOutputCsv(OUTPUT_PATH + '/' + opt.output_filename, opt.output_filename)
 # 디렉토리 내 모든 동영상 분석
 
 for vidnum, vidname in enumerate(gd.getAllVideoPath()):

@@ -59,16 +59,13 @@ class GoalDetector(FilePathCollector):
             print("setVideo() function should be choose one option in filename or filenum")
         elif filename !=None: #폴더내 파일명으로 파일 선택
             self.videoname = filename
-            #print("\n==== Set New Video [%s] ===="%self.videoname)
         elif filenum !=None: #폴더내 파일 넘버로 파일 선택
             self.videoname = self.getFileName(filenum)
-            #print("\n==== Set New Video [%s] ===="%self.videoname)
         else:
             print("setVideo() function should be choose one option in filename or filenum")
         
         if str.isdigit(self.videoname[:2]): #파일명 첫 2글자가 숫자인경우 camnumber로 인식
             self.camnum = int(self.videoname[:2])
-            #print("detect cam number : %d"%self.camnum)
         else:
             print("detect cam number : Fail")
             print("\n[Warring] Fail to detect cam number")
@@ -97,9 +94,7 @@ class GoalDetector(FilePathCollector):
             path = os.path.join(self.videodir, self.videoname)
             img = getImage(path, 100)
             self.video_h,self.video_w,d=np.shape(img)
-            #print("set video size : ",self.video_h,"*",self.video_w)
         else:
-            #print("set resize")
             self.video_w, self.video_h = self.resize
             
 
@@ -107,12 +102,10 @@ class GoalDetector(FilePathCollector):
         self.setting_frame_w =setting_frame[0][0]
         self.setting_frame_h =setting_frame[0][1]
 
-        #print("cam setting size", setting_frame[0][0], "*",setting_frame[0][1])
         self.csv_camsetting_size = setting_frame[0]
 
         if self.video_h/setting_frame[0][1] == self.video_w/setting_frame[0][0]:
             self.setting_ratio = self.video_h/setting_frame[0][1]
-            #print("setting frame ratio = %f"%self.setting_ratio)
 
         else:
             print("[Error] Frame ratio Error")
@@ -129,7 +122,6 @@ class GoalDetector(FilePathCollector):
             path = os.path.join(self.videodir, self.videoname)
             self.goalpoints = np.array([])
             img = getImage(path, 100)
-            #img = cv2.resize(img, (1024,576))
             while True:
                 x, y, w, h = cv2.selectROI(img)
                 print(x, y)
@@ -150,7 +142,6 @@ class GoalDetector(FilePathCollector):
                 [903,  67]]
                 , dtype=np.int32)
         elif opt =="load_csv":
-            #print("cam setting : [cam%d]"%self.camnum)
             pass
         elif opt =="read":
             path = os.path.join(self.videodir, self.videoname)
@@ -172,15 +163,13 @@ class GoalDetector(FilePathCollector):
             blank = np.zeros((int(self.setting_frame_h*self.setting_ratio),int(self.setting_frame_w*self.setting_ratio)), dtype=np.uint8) # 영상크기에 맞게 수정 필요
         else:
             blank = np.zeros((int(self.resize[1]),int(self.resize[0])), dtype=np.uint8) # 영상크기에 맞게 수정 필요
-        #print(self.goalpoints)
         self.goalmask = cv2.fillConvexPoly(blank,self.goalpoints,255)
 
 
     #동영상에서 지속적으로 프레임을 가져오면서 골이 감지된 프레임을 탐색
     def serchVideo(self, imgshow=False):
         path = os.path.join(self.videodir, self.videoname)
-        #print(" - serch File : %s"%path)
-        
+
         cap = cv2.VideoCapture(path)
 
         self.fps = cap.get(cv2.CAP_PROP_FPS)
@@ -200,7 +189,6 @@ class GoalDetector(FilePathCollector):
         frame_cnt = 0
         self.goal_detect_frame =[]
         #시작 프레임 임의 설정
-        #cap.set(cv2.CAP_PROP_POS_FRAMES, 8800)
         self.start_time = time.time()
         while True:
             if(frame_cnt%15==0):
@@ -218,9 +206,7 @@ class GoalDetector(FilePathCollector):
             # 128 = 그림자
             fgmask = bs.apply(gray_goal)
 
-            #모폴로지 침식
             k=cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
-            #fgmask = cv2.erode(fgmask, k)
             fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, k)
 
             # 학습된 배경 출력
@@ -238,27 +224,17 @@ class GoalDetector(FilePathCollector):
                 if self.checkball(w, h, area):
                     self.goal_detect_frame.append(frame_cnt)
                     if imgshow:
-                        #print("detect ", frame_cnt)
-                        #print(x, y, w, h, area)
                         cv2.circle(frame, (int((x+int(w/2))*self.setting_ratio),int((y+int(h/2))*self.setting_ratio)), 15,(0,0,255), 3)
                         cv2.imshow("frame", frame)
-                        #cv2.imshow("roi", fgmask)
-                        #cv2.imshow("mask_frame", mask_frame)
                         cv2.waitKey(10)
-            #cv2.imshow('frame', frame)
-            #cv2.imshow('back', back)
-            #cv2.imshow('fgmask', fgmask)
+
             ret, binmask = cv2.threshold(fgmask,250,255, cv2.THRESH_BINARY)
             mask_frame = cv2.bitwise_and(frame, frame, mask = binmask)
             if imgshow:
-                #cv2.imshow("mask_frame", mask_frame)
-                #cv2.imshow("roi", fgmask)
                 frame = cv2.polylines(frame, [self.goalpoints], True, (255,0,0))
                 cv2.imshow('frame', frame)
                 if cv2.waitKey(1) == ord('q'):
                     break
-        #print("detect frame")
-        #print(self.goal_detect_frame)
         cap.release()
 
     #골 감지 프레임중 중복된 데이터 삭제 
@@ -273,7 +249,6 @@ class GoalDetector(FilePathCollector):
             else:
                 last_frame = self.goal_detect_frame[i]
                 i+=1
-        #print(self.goal_detect_frame)
         print("\n","[analysis end]")
         
         if len(self.goal_detect_frame):
@@ -283,10 +258,10 @@ class GoalDetector(FilePathCollector):
             for i, time in enumerate(self.goal_detect_frame):
                 sec= int(time/29.7%60)
                 min= int(time/29.7//60)
-                print(line.format("goal "+str(i+1), str(min)+"min "+str(sec)+"sec"))
-                
+                print(line.format("goal "+str(i+1), str(min)+"min "+str(sec)+"sec"))    
         else:
             print("[Goal didn't detected]")
+
     def getResult(self):
         return self.goal_detect_frame
     def makeClip(self, ask=False):
@@ -306,10 +281,8 @@ class GoalDetector(FilePathCollector):
     
     #감지된 컨투어가 공인지 확인
     def checkball(self, w, h, area):
-        #ball_check_setting at frame height : 1440*576
         if(area<100) or (area>300):
             return 0
-        #print (w, h, area)
         if w>60 or h> 60:
             return 0
         if w<10 or h< 10:

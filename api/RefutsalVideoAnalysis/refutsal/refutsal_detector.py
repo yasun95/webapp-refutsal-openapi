@@ -37,7 +37,7 @@ import torch.backends.cudnn as cudnn
 
 import csv
 
-# Sunjong's environment folder name
+# SUNJONG's EDIT - Environment folder name
 # ROOT_ABS = "C:\dev_program\yolov5" #ROOT = yolov5 path
 ROOT_ABS = '/home/yasun95/workspace/flask/open_api_v1/api/RefutsalVideoAnalysis/yolov5'
 # REPO_ABS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)) # REPO = ../Refutsal_Dev_Repo
@@ -116,7 +116,6 @@ def run(
     print("")
 
     source = str(source)
-    ##save_img = not nosave and not source.endswith('.txt')  # save inference images
     is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
     is_url = source.lower().startswith(('rtsp://', 'rtmp://', 'http://', 'https://'))
     webcam = source.isnumeric() or source.endswith('.txt') or (is_url and not is_file)
@@ -144,38 +143,26 @@ def run(
     model.warmup(imgsz=(1 if pt else bs, 3, *imgsz))  # warmup
     seen, windows, dt = 0, [], [0.0, 0.0, 0.0]
 
-
     work_path = None
     #run each image or video frame #파일별 동작 
     for path, im, im0s, vid_cap, s in dataset:
         
         #csv maker
-        # csv header maker #파일 생성 및 라벨 작성 
         if make_csv == True:
             if work_path != csv_path:
-                print(work_path)
-                print(path)
-                print(header2.format("new file"))
                 work_path = csv_path
 
-                print(str(save_dir))
                 filename = os.path.basename(csv_path)
                 filename, oper = os.path.splitext(filename)
-                #output_csv_path = str(save_dir) +'\\' +filename +'.csv'
                 
-                # Sunjong - change the output csv path
+                # SUNJONG EDIT - change the output csv path
                 output_csv_path = csv_path
-                print(output_csv_path)
 
                 with open(output_csv_path,'w', newline='') as outcsv:
                     header_wr = csv.DictWriter(outcsv, fieldnames=['frame', 'camnum', 'id', 'team','cls','x', 'y'])
                     header_wr.writeheader()
             else:
                 print(header1.format("same file"))
-
-        # write video frame number
-        frame_number = 0
-
         t1 = time_sync()
         im = torch.from_numpy(im).to(device)
         im = im.half() if model.fp16 else im.float()  # uint8 to fp16/32
@@ -185,26 +172,15 @@ def run(
         t2 = time_sync()
         dt[0] += t2 - t1
 
-        #print("t1 : ",t1) time ex) 1665160928.0841901
-        #print("s : ",s) string "video 2/2 (41/860) D:\library\yolov5-master\data\images\short_video(210101).mp4:"
-        #print("vid_cap : ",vid_cap) #maybe frame adress
-        #print("im0s : ",im0s) image 3d array
-
         # Inference
-        #visualize = increment_path(save_dir / Path(path).stem, mkdir=True) if visualize else False
         pred = model(im, augment=augment, visualize=False)
         
         t3 = time_sync()
         dt[1] += t3 - t2
 
-        #print("origin_pred : ",  pred)
-        #print("origin pred size", pred.size()) #OUTPUT : origin pred size torch.Size([1, 15120, 85])
         # NMS
         pred = non_max_suppression(pred, conf_thres, iou_thres, classes, agnostic_nms, max_det=max_det)
         dt[2] += time_sync() - t3
-
-        # Second-stage classifier (optional)
-        # pred = utils.general.apply_classifier(pred, classifier_model, im, im0s)
 
         # Process predictions
         if make_csv == True:
@@ -215,26 +191,16 @@ def run(
             wr = csv.writer(f, delimiter=',')
             
 
-        for i, det in enumerate(pred):  ## 프레임별 for loop
-            #데이터 확인 궁금하면 해보셈
-            #print("i : ", i ) 1차원이라 계속 0인듯
-            #print("det : ", det) 2차원벡터 [[x,y,x,y,인식률,종류인덱스], [ ... ], ....]
-            #print("pred == ", pred)
-            #print("after pred size : ", len(pred[0][0])) #대략 [1, 21, 6]
-            #print("pred size : ", torch.tensor(pred[0]))
-            #print("pred size : ", np.array(pred.cpu()).shape())
+        for i, det in enumerate(pred):
             seen += 1
             p, im0, frame = path, im0s.copy(), getattr(dataset, 'frame', 0)
             p = Path(p)  # to Path
             save_path = str(save_dir / p.name) 
 
-             # im.jpg
-            ##txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # im.txt
             s += '%gx%g ' % im.shape[2:]  # print string
-            ##gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
             imc = im0.copy() if save_crop else im0  # for save_crop
 
-            annotator = Annotator(im0, line_width=line_thickness, example=str(names)) #bbox 만들어주는 함수인듯?
+            annotator = Annotator(im0, line_width=line_thickness, example=str(names))
 
             if len(det):
                 # Rescale boxes from img_size to im0 size
@@ -245,73 +211,50 @@ def run(
                     n = (det[:, -1] == c).sum()  # detections per class
                     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to strinzg
 
-                #print("det : ", det)
                 if make_csv:
-
                     #csv에 데이터 입력하는 파트
-                    #1
-                    # detach() - cpu() - numpy()
-                    #wr = csv.writer(f, delimiter=',')
                     det[:, 4]*=100
                     data = np.asarray(det.cpu(), dtype=np.uint16)
-                    #print(data)
-                    
+
                     # Remove cls != 0 (Not Person : Row Index Remove)
                     remover = True
                     for j in range(len(data[:,5])):
                         if remover:
                             k = 0
-                            #print("j : ", j)g
-                            #print("k : ", k)
-                            #print("len : ", len(data[:,5]))
-                            #선종쓰 / 클래스 정확도로 거르는 부분
-                            #if int(data[:,5][j-k]) != 0 and int(data[:,5][j-k]) != 32 or int(data[:,4][j-k]) < 20:
+                            # 클래스 정확도로 거르는 부분
                             if int(data[:,4][j-k]) < 20:
                                 #print("j : ", j)
                                 data = np.delete(data, j-k, axis=0)
                                 remover = False
                                 k += 1
-                    # if len(data)==0:
-                    #     frame_number += 1
-                    #     continue
                 
                     # data x value sorted
                     data = np.array(sorted(data, key = lambda x : x[0]))
-                    #print(data)
+
                     foot_xy = np.column_stack([(data[:,0]+data[:,2])/2, data[:,3]])
                     foot_xy = np.round(foot_xy).astype(int)
-                    #foot_xy = np.array(sorted(foot_xy, key = lambda x : x[0]))
-                    
+                
                     # remove data rows = data length
                     frame = np.full((len(data[:,5]),1), frame)
                     #cls = data[:,4]
                     cls = data[:,5]
 
-                    # # 0 인식안됨, 1팀, 2팀
+                    # 0 인식안됨, 1팀, 2팀
                     # team, playerid's numpy form
                     team, playerid = create_data_form(len(cls))
-                    #playerid = find_team_and_id(im0s, playerid)h
+
                     # Background - Object Subtraction, But runtime is slowing down
                     bg = cv2.createBackgroundSubtractorMOG2(250, 50, False)
                     fg, fgmask = background_subtractor(im0s, bg)
 
                     # Write in Parameter (Type : String) / color : red, blue, green, orange, yellow
-                    # print(vest_color1, vest_color2)
                     lower1, upper1 = get_color_range(vest_color1)
                     lower2, upper2 = get_color_range(vest_color2)
 
                     mask_vest1, mask_vest2, mask_all = create_color_mask(fg, lower1, upper1, lower2, upper2)
-                    #cv2.imshow("test", mask_red)
                     detect_team_all, team = create_bbox_detect_color_contours(im0s, mask_all, data, (0,0,255), lower1, upper1, lower2, upper2, team, seen)
-                    # camnum = camera_number
                     camnum = np.ones((len(data[:,5]),1), dtype=np.int16)*int(camera_number)
-                    #camnum= camnum.reshape(len(data), 1)
 
-                    # image save with boundig box(Blue : yolo detection, Green : my detection)
-                    #cv2.imwrite("frame_save/%d.jpg" % frame_number, im0s)
-                    # frame_number += 1
-
-                    #csv 데이터 형식
                     try:
                         csv_data = np.column_stack([frame, camnum, playerid, team, cls, foot_xy])
                         print(csv_data)
@@ -321,14 +264,12 @@ def run(
                         csv_data = np.column_stack([frame, camnum, playerid, team, cls, foot_xy])
 
                     csv_data = np.round(csv_data).astype(int)
-                    #csv_data = np.array(sorted(csv_data, key = lambda x : x[5]))
-                    #print(csv_data) #Csv파일에 작성되는 형태 궁금하면 확인해보셈
 
                     for line in csv_data:
                         wr.writerow(line)
+
             # Write results on image
             # Stream results
-            
             #my_im0 = annotator2.result() #동영상으로 저장할 이미지 생성
             #초록색 영상 생성
 #=================================================================================
@@ -393,13 +334,10 @@ def run(
         strip_optimizer(weights)  # update model (to fix SourceChangeWarning)
     process()
 
-    
-
 
 def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', nargs='+', type=str, default=ROOT / 'yolov5s.pt', help='model path(s)')
-    #parser.add_argument('--source', type=str, default=ROOT / 'data/images', help='file/dir/URL/glob, 0 for webcam')
     parser.add_argument('--source', type=str, default=REPO / 'input/test_service', help='file/dir/URL/glob, 0 for webcam')
     parser.add_argument('--data', type=str, default=ROOT / 'data/coco128.yaml', help='(optional) dataset.yaml path')
     parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[640], help='inference size h,w')
@@ -417,7 +355,6 @@ def parse_opt():
     parser.add_argument('--augment', action='store_true', help='augmented inference')
     parser.add_argument('--visualize', action='store_true', help='visualize features')
     parser.add_argument('--update', action='store_true', help='update all models')
-    #parser.add_argument('--project', default=ROOT / 'runs/detect', help='save results to project/name')
     parser.add_argument('--project', default=REPO / 'output/detect', help='save results to project/name')
     parser.add_argument('--name', default='exp', help='save results to project/name')
     parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok, do not increment')
@@ -426,8 +363,8 @@ def parse_opt():
     parser.add_argument('--hide-conf', default=False, action='store_true', help='hide confidences')
     parser.add_argument('--half', action='store_true', help='use FP16 half-precision inference')
     parser.add_argument('--dnn', action='store_true', help='use OpenCV DNN for ONNX inference')
-    parser.add_argument("--camera-number", default=2)
-    parser.add_argument("--csv-path", default='')
+    parser.add_argument("--camera-number", type=int, default=2)
+    parser.add_argument("--csv-path", type=str, default='')
     parser.add_argument("--video-cap", type=bool, default=True)
     parser.add_argument("--kernel", type=tuple, default=(5,5))
     parser.add_argument("--bbox-area", type=int, default=150)

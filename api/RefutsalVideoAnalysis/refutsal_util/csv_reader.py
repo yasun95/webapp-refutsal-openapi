@@ -1,5 +1,7 @@
 import os
 import pandas as pd
+import csv
+import time
 
 
 class CsvReader: 
@@ -28,7 +30,17 @@ class CsvReader:
         self.print_en = print_en
         self.forder_path = []
         self.output_colums = output_colums
-        #self.nowDF = pd.DataFrame()
+        self.nextframe = 1 #[hot fix]
+
+        self.fake_df = pd.DataFrame()
+        self.fake_df['frame']=[self.last_frame]
+        self.fake_df['camnum'] = [9]
+        self.fake_df['id'] = [0]
+        self.fake_df['team'] = [0]
+        self.fake_df['cls']=[0]
+        self.fake_df['x'] = [-10000000]
+        self.fake_df['y'] = [-10000000]
+
     def getStauts(self):
         return self.enable
 
@@ -45,8 +57,6 @@ class CsvReader:
             name, ext = os.path.splitext(file)
             if ext == '.csv': #csv만 추출
                 path = self.forder_path+'/'+file
-                #print(path)
-                #self.forder_path.append(path)
                 self.filepath.append(path)
                 self.last_row.append(1)
 
@@ -54,13 +64,21 @@ class CsvReader:
         return self.filepath
 
     def readFrame(self):
-        '''
-        
-        '''
         self.dfarr.clear()
         self.nowDF = pd.DataFrame(index=range(0), columns=self.output_colums)
-
         for i, path in enumerate(self.filepath): #csv 파일 순회 하면서 같은 프레임 모아서 self.nowDF에 붙여둠
+            if self.last_row[i] > 180000:
+                print("[erase row] : ", self.last_row)
+                print(self.filepath[i])
+                self.__erase_csv_frame(self.filepath[i], self.last_frame)
+                self.last_row[i] = 1
+                time.sleep(0.1)
+            if self.last_row[i] == 0:
+                frame = self.__getFirstFrame(self.filepath[i])
+                print(self.filepath[i])
+                print(frame)
+
+
             self.dfarr.append(pd.read_csv(path,
                                           header=None,
                                           names=self.output_colums,
@@ -68,24 +86,77 @@ class CsvReader:
                                           chunksize = self.last_row[i]+self.once_read_row
                                           ))
             if self.print_en>=2: print('cam num : ',i+1)
-            #print('scan index : ', self.dfarr[-1].get_chunk(self.once_read_row)['frame'].idxmax())
-            #print(self.dfarr[-1].get_chunk(self.once_read_row).groupby('frame').get_group(self.last_frame))
+
             try:
                 temp_df = self.dfarr[-1].get_chunk(self.once_read_row).groupby('frame').get_group(self.last_frame)
+                self.last_row[i]+=len(temp_df)
+
             except:
-                print("=============== end frame cam", i+1," =================")
-                self.enable = False
-                return 0
-                
-            self.last_row[i]+=len(temp_df)
+                if self.last_frame > 15000:
+                    self.enable = False
+                    return 0
+                else: 
+                    temp_df = self.fake_df
+
             if self.print_en >=2 : 
                 print('temp_df size : ',len(temp_df))
                 print(temp_df)
+
             self.nowDF = pd.concat([self.nowDF, temp_df], ignore_index=True)
-
-        self.last_frame+=1
+        self.last_frame+= 1
         return self.nowDF
+    
+    def setStartFrame(self, frame):
+        self.last_frame = frame
 
+    def setReadFrame(self, frame):
+        self.nextframe = frame
 
     def getDF(self):
         return self.nowDF
+    
+    def __erase_csv(self, file, line):
+        path = file
+        copy_path = 'C:\dev_program\RefutsalVideoAnalysis\\refutsal_test\\temp.csv' #temp
+        with open(path, mode='r') as original_file, open(copy_path, mode='w', newline='') as new_file:
+            reader = csv.reader(original_file)
+            writer = csv.writer(new_file)
+
+            # Copy the header row to the new file
+            header = next(reader)
+            writer.writerow(header)
+
+            # Copy all rows except for lines 2-5
+            for i, row in enumerate(reader):
+                if  i > line:
+                    writer.writerow(row)
+                    
+        # Rename the new file to the original filename
+        import os
+        os.replace(copy_path, path)
+
+    def __erase_csv_frame(self, file, frame):
+        path = file
+        copy_path = 'C:\dev_program\RefutsalVideoAnalysis\\refutsal_test\\temp.csv' #temp
+        with open(path, mode='r') as original_file, open(copy_path, mode='w', newline='') as new_file:
+            reader = csv.reader(original_file)
+            writer = csv.writer(new_file)
+
+            # Copy the header row to the new file
+            header = next(reader)
+            writer.writerow(header)
+
+            # Copy all rows except for lines 2-5
+            for i, row in enumerate(reader):
+                if  int(row[0]) >= frame:
+                    writer.writerow(row)
+                    
+        # Rename the new file to the original filename
+        import os
+        os.replace(copy_path, path)
+    def __getFirstFrame(self, path):
+        with open(path, mode='r') as file:
+            reader = csv.reader(file)
+            header = next(file)
+            for i, row in enumerate(reader):
+                return row[0]
