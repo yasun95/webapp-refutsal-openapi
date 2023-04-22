@@ -25,16 +25,18 @@
 
 6. config - DB & Path config
 
-## Install & Build
+## Install
 
-Follow the link and install requirements.txt in a Python>=3.8.0 environments, including PyTorch>=1.12.0+cu116.
-
-WINDOWS : https://95mkr.tistory.com/entry/DD1
-
-LINUX : https://95mkr.tistory.com/entry/LINUX5
+Install requirements.txt in a Python>=3.8.0 environments, including PyTorch>=1.12.0+cu116.
 
 ```python
 git clone https://github.com/yasun95/webapp-refutsal-openapi.git
 cd webapp-refutsal-openapi
 pip install -r requiremetns.txt
 ```
+
+You can refer to the following link for download or contact me if you have any difficulties.
+
+WINDOWS : https://95mkr.tistory.com/entry/DD1
+
+LINUX : https://95mkr.tistory.com/entry/LINUX5
