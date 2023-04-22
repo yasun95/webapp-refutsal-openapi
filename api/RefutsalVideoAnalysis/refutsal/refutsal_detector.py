@@ -38,10 +38,9 @@ import torch.backends.cudnn as cudnn
 import csv
 
 # SUNJONG's EDIT - Environment folder name
-# ROOT_ABS = "C:\dev_program\yolov5" #ROOT = yolov5 path
-ROOT_ABS = '/home/yasun95/workspace/flask/open_api_v1/api/RefutsalVideoAnalysis/yolov5'
-# REPO_ABS = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)) # REPO = ../Refutsal_Dev_Repo
-REPO_ABS = '/home/yasun95/workspace/flask/open_api_v1/api/RefutsalVideoAnalysis'
+ROOT_ABS = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'yolov5'))
+REPO_ABS = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
 header1 = "{0:_^60}"
 header2 = "{0:=^60}"
 textline = "{0:<20}{1:<40}"
